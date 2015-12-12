@@ -2,6 +2,10 @@ package fmd_desktop_clint.views;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
@@ -16,15 +20,25 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
 public class AddDevice extends JFrame {
-	public AddDevice() {
+	public static final File addDeviceFile = new File("devicefile.txt");
+
+	public AddDevice() throws IOException {
 		super("Add  Device");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-		setBounds(250, 115, 800, 550);
-		JPanel panel = new JPanel();
-		add(panel);
-		placeComponents(panel);
-		setVisible(true);
+		if (!addDeviceFile.exists()) {
+			addDeviceFile.createNewFile();
+
+			setBounds(250, 115, 800, 550);
+			JPanel panel = new JPanel();
+			add(panel);
+			placeComponents(panel);
+			setVisible(true);
+
+		} else {
+			dispose();
+		}
+
 	}
 
 	private void placeComponents(JPanel panel) {
@@ -69,6 +83,29 @@ public class AddDevice extends JFrame {
 							if (pass.equals(rePass)) {
 								String mac = getMacAddress();
 								System.out.println(mac);
+
+								FileWriter fw = null;
+								try {
+									fw = new FileWriter(addDeviceFile);
+								} catch (IOException e1) {
+
+									e1.printStackTrace();
+								}
+								BufferedWriter bw = new BufferedWriter(fw);
+								try {
+									bw.write("1");
+								} catch (IOException e1) {
+									e1.printStackTrace();
+								}
+								try {
+									bw.close();
+								} catch (IOException e1) {
+									e1.printStackTrace();
+								}
+
+								// add here
+								
+								dispose();
 							} else {
 								String message = "password and re-password are not equal";
 								JOptionPane.showMessageDialog(new JFrame(), message, "Dialog",

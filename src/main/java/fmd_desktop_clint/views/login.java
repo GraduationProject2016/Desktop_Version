@@ -3,6 +3,7 @@ package fmd_desktop_clint.views;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -92,11 +93,22 @@ public class login extends JFrame {
 					name = userText.getText().trim();
 					pass = passwordText.getPassword().toString();
 					System.out.println(name + " " + pass);
-					new AddDevice().setVisible(true);
+					try {
+						File addDeviceFile = new File("devicefile.txt");
+						if (!addDeviceFile.exists())
+							new AddDevice().setVisible(true);
+						else {
+							errorMsg("This device already added");
+
+						}
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 					frame.dispose();
 
 				} else {
-					errorMsg();
+					errorMsg("you should write somthing");
 				}
 
 			}
@@ -136,8 +148,8 @@ public class login extends JFrame {
 		HttpRequst(url);
 	}
 
-	public static void errorMsg() {
-		String message = "you should write somthing";
+	public static void errorMsg(String message) {
+
 		JOptionPane.showMessageDialog(new JFrame(), message, "Dialog", JOptionPane.ERROR_MESSAGE);
 	}
 }
