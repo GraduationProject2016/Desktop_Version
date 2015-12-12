@@ -1,22 +1,58 @@
+/**
+ * @author mohamed265
+ * Created On : Dec 11, 2015 3:32:21 PM
+ */
 package fmd_desktop_clint.socet;
 
 import java.io.Serializable;
 
-public class Message implements Serializable {
+/**
+ * @author mohamed265
+ *
+ */
 
+public abstract class Message  implements Serializable{
+	/**
+	 * 
+	 */
 	private static final long serialVersionUID = 1L;
-	public String type, sender, content, recipient;
+	private Long id;
+	private String content;
+	private Boolean type;
 
-	public Message(String type, String sender, String content, String recipient) {
+	public Message() {
+	}
+
+	public abstract Object getSender();
+
+	public abstract Object getSenderId();
+
+	public abstract Object getReceiever();
+
+	public abstract Object getReceieverId();
+
+	public Long getId() {
+		return id;
+	}
+
+	public Boolean getType() {
+		return type;
+	}
+
+	public String getContent() {
+		return content;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public void setType(Boolean type) {
 		this.type = type;
-		this.sender = sender;
-		this.content = content;
-		this.recipient = recipient;
 	}
 
-	@Override
-	public String toString() {
-		return "{type='" + type + "', sender='" + sender + "', content='" + content + "', recipient='" + recipient
-				+ "'}";
+	public void setContent(String content) {
+		this.content = content;
 	}
+
 }
