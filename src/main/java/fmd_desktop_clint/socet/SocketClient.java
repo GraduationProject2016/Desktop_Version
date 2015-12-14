@@ -7,6 +7,8 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.util.Scanner;
 
+import fmd_desktop_clint.socet.dto.MessageDto;
+
 public class SocketClient implements Runnable {
 
 	public int port;
@@ -35,13 +37,11 @@ public class SocketClient implements Runnable {
 	public void run() {
 		boolean keepRunning = true;
 		Scanner in = new Scanner(System.in);
-		
+
 		while (keepRunning) {
 			try {
-				Message msg = (Message) In.readObject();
+				MessageDto msg = (MessageDto) In.readObject();
 				System.out.println("Incoming : " + msg.toString());
-
-				
 
 			} catch (Exception ex) {
 				keepRunning = false;
@@ -52,7 +52,7 @@ public class SocketClient implements Runnable {
 		}
 	}
 
-	public void send(Message msg) {
+	public void send(String msg) {
 		try {
 			Out.writeObject(msg);
 			Out.flush();

@@ -2,7 +2,7 @@
  * @author mohamed265
  * Created On : Nov 27, 2015 10:07:56 PM
  */
-package fmd_desktop_clint.socet;
+package fmd_desktop_clint.socet.entity;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -30,6 +30,8 @@ public class Device implements Serializable {
 	private Boolean online;
 
 	private Boolean type;
+	
+	private String content;
 
 	private Boolean active;
 
@@ -125,11 +127,19 @@ public class Device implements Serializable {
 		this.status = status;
 	}
 
+	public String getContent() {
+		return content;
+	}
+
+	public void setContent(String content) {
+		this.content = content;
+	}
+
 	@Override
 	public String toString() {
-		return "Device [id=" + id + ", name=" + name + ", password=" + password + ", macAddress=" + macAddress
-				+ ", lastActiveDate=" + lastActiveDate + ", online=" + online + ", type=" + type + ", active=" + active
-				+ ", status=" + status + "]";
+		return "Device [id=" + id + ", user=" + user + ", name=" + name + ", password=" + password + ", macAddress="
+				+ macAddress + ", lastActiveDate=" + lastActiveDate + ", online=" + online + ", type=" + type
+				+ ", content=" + content + ", active=" + active + ", status=" + status + "]";
 	}
 
 }

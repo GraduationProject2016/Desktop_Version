@@ -18,9 +18,8 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
-import fmd_desktop_clint.socet.ClientToServerMessage;
-import fmd_desktop_clint.socet.Message;
 import fmd_desktop_clint.socet.SocketClient;
+import fmd_desktop_clint.socet.dto.MessageDto;
 
 public class login extends JFrame {
 	private int lastOnlineTimeSeconds;
@@ -30,9 +29,7 @@ public class login extends JFrame {
 	private static String pass;
 	public static JFrame frame = new JFrame("Login");
 
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-
+	public login() {
 		frame.setSize(800, 550);
 		frame.setBounds(250, 115, 800, 550);
 
@@ -44,21 +41,9 @@ public class login extends JFrame {
 		placeComponents(panel);
 
 		frame.setVisible(true);
-		
-//		 try{
-//			 SocketClient client = new SocketClient();
-//			 Thread clientThread = new Thread(client);
-//             clientThread.start();
-//             
-//             Message msg = new ClientToServerMessage();
-//             msg.setContent("hema");
-//             
-//             client.send(msg);
-//         }
-//         catch(Exception ex){ 
-//         }
-
 	}
+
+	
 
 	private static void placeComponents(JPanel panel) {
 
