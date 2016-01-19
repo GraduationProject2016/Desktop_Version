@@ -27,7 +27,7 @@ public class ComputerFilesSystem {
 
 	public static void ls() throws IOException {
 		String fileName, fileType;
-		double fileSize;
+		long fileSize;
 
 		File folder = new File(path);
 		File[] listOfFiles = folder.listFiles();
@@ -36,7 +36,7 @@ public class ComputerFilesSystem {
 			if (!listOfFiles[i].isHidden()) {
 				if (listOfFiles[i].isFile()) {
 					fileName = listOfFiles[i].getName();
-					fileSize = listOfFiles[i].length();
+					fileSize = listOfFiles[i].length() / 1024;
 					fileType = Files.probeContentType(listOfFiles[i].toPath());
 					files.add(new FMDFile(fileName, fileType, fileSize));
 				} else if (listOfFiles[i].isDirectory()) {
@@ -78,13 +78,13 @@ public class ComputerFilesSystem {
 		for (int i = 0; i < numOfFiles; i++) {
 			JSONObject obj = (JSONObject) fileArray.get(i);
 			files.add(new FMDFile((String) obj.getString("name"), (String) obj.getString("type"),
-					(double) obj.get("size")));
+					(long) obj.get("size")));
 		}
 
 		JSONArray folderArray = (JSONArray) object.get("folders");
 		for (int i = 0; i < numOfFolders; i++) {
 			JSONObject obj = (JSONObject) folderArray.get(i);
-			directories.add(new FMDDirectory((String) obj.getString("name"), (double) obj.get("size")));
+			directories.add(new FMDDirectory((String) obj.getString("name"), (long) obj.get("size")));
 		}
 
 	}

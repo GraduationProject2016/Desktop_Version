@@ -6,9 +6,9 @@ import org.json.JSONObject;
 public class FMDDirectory {
 
 	public String name;
-	public double size;
+	public long size;
 
-	public FMDDirectory(String name, double size) {
+	public FMDDirectory(String name, long size) {
 		super();
 		this.name = name;
 		this.size = size;
@@ -22,11 +22,11 @@ public class FMDDirectory {
 		this.name = name;
 	}
 
-	public double getSize() {
+	public long getSize() {
 		return size;
 	}
 
-	public void setSize(double size) {
+	public void setSize(long size) {
 		this.size = size;
 	}
 

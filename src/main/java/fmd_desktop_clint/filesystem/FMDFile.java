@@ -6,9 +6,9 @@ import org.json.JSONObject;
 public class FMDFile {
 	public String name;
 	public String type;
-	public double size;
+	public long size;
 
-	public FMDFile(String name, String type, double size) {
+	public FMDFile(String name, String type, long size) {
 		super();
 		this.name = name;
 		this.type = type;
@@ -31,11 +31,11 @@ public class FMDFile {
 		this.type = type;
 	}
 
-	public double getSize() {
+	public long getSize() {
 		return size;
 	}
 
-	public void setSize(double size) {
+	public void setSize(long size) {
 		this.size = size;
 	}
 
