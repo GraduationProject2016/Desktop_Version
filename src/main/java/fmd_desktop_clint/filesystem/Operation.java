@@ -88,23 +88,23 @@ public class Operation {
 
 	}
 
-	public JSONObject computerPathJson(String path) throws JSONException, IOException {
+	public static JSONObject computerPathJson(String path) throws JSONException, IOException {
 		ComputerFilesSystem obj = new ComputerFilesSystem(path);
 		return obj.toJson();
 	}
 
-	public JSONObject computerHomeJson() throws JSONException, IOException {
+	public static JSONObject computerHomeJson() throws JSONException, IOException {
 		ComputerFilesSystem obj = new ComputerFilesSystem(
 				FileSystemView.getFileSystemView().getDefaultDirectory().getParent());
 		return obj.toJson();
 	}
 
-	public JSONObject computerDesktopJson() throws JSONException, IOException {
+	public static JSONObject computerDesktopJson() throws JSONException, IOException {
 		ComputerFilesSystem obj = new ComputerFilesSystem(Utility.getDesktopPath());
 		return obj.toJson();
 	}
 
-	public JSONObject computerPartionsJson() throws JSONException {
+	public static JSONObject computerPartionsJson() throws JSONException {
 		JSONObject object = new JSONObject();
 		List<FMDPartion> partions = Utility.getComputerPartions();
 
@@ -115,18 +115,6 @@ public class Operation {
 		object.put("partions", ps);
 		object.put("numOfPartions", partions.size());
 		return object;
-	}
-
-	public void decodeComputerPartionsJson(JSONObject object) throws JSONException {
-		int numOfPartions = (int) object.get("numOfPartions");
-		JSONArray folderArray = (JSONArray) object.get("partions");
-		List<FMDPartion> partions = new ArrayList<FMDPartion>();
-
-		for (int i = 0; i < numOfPartions; i++) {
-			JSONObject obj = (JSONObject) folderArray.get(i);
-			partions.add(new FMDPartion((String) obj.getString("name"), (String) obj.getString("path"),
-					(double) obj.get("totalSpace"), (double) obj.get("usableSpace")));
-		}
 	}
 
 }

@@ -7,10 +7,10 @@ public class FMDPartion {
 
 	public String name;
 	public String path;
-	public double totalSpace;
-	public double usableSpace;
+	public long totalSpace;
+	public long usableSpace;
 
-	public FMDPartion(String name, String path, double totalSpace, double usableSpace) {
+	public FMDPartion(String name, String path, long totalSpace, long usableSpace) {
 		super();
 		this.name = name;
 		this.path = path;
@@ -26,19 +26,19 @@ public class FMDPartion {
 		this.name = name;
 	}
 
-	public double getTotalSpace() {
+	public long getTotalSpace() {
 		return totalSpace;
 	}
 
-	public void setTotalSpace(double totalSpace) {
+	public void setTotalSpace(long totalSpace) {
 		this.totalSpace = totalSpace;
 	}
 
-	public double getUsableSpace() {
+	public long getUsableSpace() {
 		return usableSpace;
 	}
 
-	public void setUsableSpace(double usableSpace) {
+	public void setUsableSpace(long usableSpace) {
 		this.usableSpace = usableSpace;
 	}
 
