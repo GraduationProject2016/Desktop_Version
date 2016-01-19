@@ -31,7 +31,7 @@ public class JSONDecoding {
 		return fs;
 	}
 
-	public List<FMDPartion> decodeJsonOFPartions(JSONObject object) throws JSONException {
+	public static List<FMDPartion> decodeJsonOFPartions(JSONObject object) throws JSONException {
 		List<FMDPartion> partions = new ArrayList<FMDPartion>();
 
 		int numOfPartions = (int) object.get("numOfPartions");
