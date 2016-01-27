@@ -3,9 +3,14 @@ package fmd_desktop_clint.views;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -18,18 +23,31 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
-import fmd_desktop_clint.socet.SocketClient;
-import fmd_desktop_clint.socet.dto.MessageDto;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import fmd_desktop_clint.util.JsonHandler;
+import fmd_desktop_clint.util.WebServiceConnector;
 
 public class login extends JFrame {
+
 	private int lastOnlineTimeSeconds;
 	private int registrationTimeSeconds;
 	private final static String USER_AGENT = "Mozilla/5.0";
-	private static String name;
-	private static String pass;
+	private static String userName;
+	private static String password;
 	public static JFrame frame = new JFrame("Login");
 
-	public login() {
+	public login() throws IOException {
+		if (new File("configfile.txt").exists()) {
+			String[] arr = readConfigFile();
+			if (arr.length > 0) {
+				if (!arr[1].equals("0")) {
+					new AddDevice();
+					frame.dispose();
+				}
+			}
+		}
 		frame.setSize(800, 550);
 		frame.setBounds(250, 115, 800, 550);
 
@@ -43,14 +61,12 @@ public class login extends JFrame {
 		frame.setVisible(true);
 	}
 
-	
-
 	private static void placeComponents(JPanel panel) {
 
 		panel.setLayout(null);
 
-		JLabel userLabel = new JLabel("User");
-		userLabel.setBounds(250, 140, 80, 25);
+		JLabel userLabel = new JLabel("Username/Email");
+		userLabel.setBounds(250, 140, 100, 25);
 		panel.add(userLabel);
 
 		final JTextField userText = new JTextField(20);
@@ -91,26 +107,55 @@ public class login extends JFrame {
 		loginButton.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
-				if (userText.getText().trim().length() > 0 && passwordText.getPassword().length > 0) {
-					name = userText.getText().trim();
-					pass = passwordText.getPassword().toString();
-					System.out.println(name + " " + pass);
-					try {
-						File addDeviceFile = new File("devicefile.txt");
-						if (!addDeviceFile.exists())
-							new AddDevice().setVisible(true);
-						else {
-							errorMsg("This device already added");
+				userName = userText.getText().trim();
+				password = passwordText.getText().trim();
 
+				if (!userName.equals("") && !password.equals("")) {
+
+					try {
+						File addDeviceFile = new File("configfile.txt");
+						// first line --> device added or not (0 or 1)
+						// second line --> user id
+						// third line --> device id
+						if (!addDeviceFile.exists()) {
+							addDeviceFile.createNewFile();
+							PrintWriter writer = new PrintWriter(addDeviceFile, "UTF-8");
+							writer.println("0 , 0 , 0"); // device not added
+							writer.close();
+						}
+
+						BufferedReader brTest = new BufferedReader(new FileReader(addDeviceFile));
+						boolean isDeviceAdded = brTest.readLine().equals("1");
+
+						String response = "";
+						try {
+							response = isAuzorizedUser(userName, password);
+						} catch (JSONException e1) {
+							e1.printStackTrace();
+						}
+
+						if (!isDeviceAdded && response.equals("true")) {
+							new AddDevice().setVisible(true);
+							frame.dispose();
+						} else if (isDeviceAdded) {
+							errorMsg("This device is already added.");
+						} else if (response.equals("error_not_active")) {
+							errorMsg("Please Activate your account, check your mail.");
+						} else if (response.equals("false")) {
+							errorMsg("Login Error, in your username/email or password.");
 						}
 					} catch (IOException e1) {
-						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
-					frame.dispose();
 
 				} else {
-					errorMsg("you should write somthing");
+					if (userName.equals("") && password.equals("")) {
+						errorMsg("Please insert your username/email and password");
+					} else if (userName.equals("")) {
+						errorMsg("Please insert your username or email");
+					} else if (password.equals("")) {
+						errorMsg("Please insert your password");
+					}
 				}
 
 			}
@@ -118,40 +163,56 @@ public class login extends JFrame {
 
 	}
 
-	private static void HttpRequst(String url) throws Exception {
+	private static boolean isEmail(String input) {
+		int atIndex = input.indexOf('@');
 
-		URL obj = new URL(url);
-		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+		if (atIndex == -1)
+			return false;
 
-		// optional default is GET
-		con.setRequestMethod("GET");
+		int lastDotIndex = input.lastIndexOf('.');
 
-		// add request header
-		con.setRequestProperty("User-Agent", USER_AGENT);
-
-		int responseCode = con.getResponseCode();
-		System.out.println("\nSending 'GET' request to URL : " + url);
-		System.out.println("Response Code : " + responseCode);
-
-		BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-		String inputLine;
-		StringBuffer response = new StringBuffer();
-
-		while ((inputLine = in.readLine()) != null) {
-			response.append(inputLine);
-		}
-		in.close();
-		System.out.println(response.toString());
-
+		return atIndex < lastDotIndex && lastDotIndex - atIndex != 1 && lastDotIndex != input.length() - 1
+				&& atIndex != 0;
 	}
 
-	public static void rating() throws Exception {
-		String url = " http://codeforces.com/api/user.rating?handle=" + name;
-		HttpRequst(url);
+	public static String isAuzorizedUser(String username, String password) throws JSONException, IOException {
+		String login_by = "";
+		if (isEmail(username))
+			login_by = "email";
+		else
+			login_by = "username";
+
+		String url = "http://localhost:8080/fmd/webService/user/login/" + login_by + "/" + username + "/" + password;
+		String respose = WebServiceConnector.getResponeString(url);
+		JSONObject obj = new JSONObject(respose);
+		if (obj.getString("status").equals("Success") && obj.getBoolean("active") == true) {
+			saveUserID(obj.getInt("id"));
+			return "true";
+		} else if (obj.getString("status").equals("Success") && obj.getBoolean("active") == false) {
+			return "error_not_active";
+		}
+		return "false";
+	}
+
+	public static void saveUserID(int userID) throws IOException {
+		File addDeviceFile = new File("configfile.txt");
+		BufferedReader brTest = new BufferedReader(new FileReader(addDeviceFile));
+		String[] arr = brTest.readLine().split(" , ");
+
+		try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("configfile.txt", false)))) {
+			out.println(arr[0] + " , " + userID + " , " + arr[2]);
+		} catch (IOException e) {
+		}
+	}
+
+	public static String[] readConfigFile() throws IOException {
+		File addDeviceFile = new File("configfile.txt");
+		BufferedReader brTest = new BufferedReader(new FileReader(addDeviceFile));
+		String[] arr = brTest.readLine().split(" , ");
+		return arr;
 	}
 
 	public static void errorMsg(String message) {
-
 		JOptionPane.showMessageDialog(new JFrame(), message, "Dialog", JOptionPane.ERROR_MESSAGE);
 	}
 }
