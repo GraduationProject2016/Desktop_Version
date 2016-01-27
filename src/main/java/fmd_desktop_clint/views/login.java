@@ -26,6 +26,7 @@ import javax.swing.JTextField;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import fmd_desktop_clint.util.CommonUtil;
 import fmd_desktop_clint.util.JsonHandler;
 import fmd_desktop_clint.util.WebServiceConnector;
 
@@ -114,18 +115,14 @@ public class login extends JFrame {
 
 					try {
 						File addDeviceFile = new File("configfile.txt");
-						// first line --> device added or not (0 or 1)
-						// second line --> user id
-						// third line --> device id
 						if (!addDeviceFile.exists()) {
 							addDeviceFile.createNewFile();
 							PrintWriter writer = new PrintWriter(addDeviceFile, "UTF-8");
-							writer.println("0 , 0 , 0"); // device not added
+							writer.println("0 , 0 , 0");
 							writer.close();
 						}
 
-						BufferedReader brTest = new BufferedReader(new FileReader(addDeviceFile));
-						boolean isDeviceAdded = brTest.readLine().equals("1");
+						boolean isDeviceAdded = CommonUtil.isAddedDevice();
 
 						String response = "";
 						try {
