@@ -45,7 +45,7 @@ public class login extends JFrame {
 			if (arr.length > 0) {
 				if (!arr[1].equals("0")) {
 					new AddDevice();
-					frame.dispose();
+					dispose();
 				}
 			}
 		}
@@ -134,6 +134,8 @@ public class login extends JFrame {
 						if (!isDeviceAdded && response.equals("true")) {
 							new AddDevice().setVisible(true);
 							frame.dispose();
+						} else if (response.equals("null")) {
+							errorMsg("Please check internet connection.");
 						} else if (isDeviceAdded) {
 							errorMsg("This device is already added.");
 						} else if (response.equals("error_not_active")) {
@@ -180,8 +182,13 @@ public class login extends JFrame {
 			login_by = "username";
 
 		String url = "http://localhost:8080/fmd/webService/user/login/" + login_by + "/" + username + "/" + password;
-		String respose = WebServiceConnector.getResponeString(url);
-		JSONObject obj = new JSONObject(respose);
+		String response = WebServiceConnector.getResponeString(url);
+
+		if (response == null) {
+			return "null";
+		}
+
+		JSONObject obj = new JSONObject(response);
 		if (obj.getString("status").equals("Success") && obj.getBoolean("active") == true) {
 			saveUserID(obj.getInt("id"));
 			return "true";
