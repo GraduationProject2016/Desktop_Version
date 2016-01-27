@@ -40,26 +40,32 @@ public class login extends JFrame {
 	public static JFrame frame = new JFrame("Login");
 
 	public login() throws IOException {
+		boolean flag = false;
 		if (new File("configfile.txt").exists()) {
 			String[] arr = readConfigFile();
 			if (arr.length > 0) {
 				if (!arr[1].equals("0")) {
-					new AddDevice();
-					dispose();
+					flag = true;
 				}
 			}
 		}
-		frame.setSize(800, 550);
-		frame.setBounds(250, 115, 800, 550);
 
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		if (flag) {
+			frame.dispose();
+			new AddDevice().setVisible(true);
+		} else {
+			frame.setSize(800, 550);
+			frame.setBounds(250, 115, 800, 550);
 
-		JPanel panel = new JPanel();
-		// panel.setBounds(800, 550, 800, 100);
-		frame.add(panel);
-		placeComponents(panel);
+			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-		frame.setVisible(true);
+			JPanel panel = new JPanel();
+			// panel.setBounds(800, 550, 800, 100);
+			frame.add(panel);
+			placeComponents(panel);
+
+			frame.setVisible(true);
+		}
 	}
 
 	private static void placeComponents(JPanel panel) {
@@ -141,7 +147,7 @@ public class login extends JFrame {
 						} else if (response.equals("error_not_active")) {
 							errorMsg("Please Activate your account, check your mail.");
 						} else if (response.equals("false")) {
-							errorMsg("Login Error, in your username/email or password.");
+							errorMsg("Login Error, check your username/email or password.");
 						}
 					} catch (IOException e1) {
 						e1.printStackTrace();
@@ -209,11 +215,70 @@ public class login extends JFrame {
 		}
 	}
 
+	public static String registerUserDevice(int deviceName, String devicePassword) throws JSONException, IOException {
+
+		String os = System.getProperty("os.name").toLowerCase().contains("windows") ? "WINDOWS" : "LINUX";
+		int userID = CommonUtil.getUserID();
+		int deviceID = getMacAddress();
+
+		String url = "http://localhost:8080/fmd/webService/device/register/" + deviceName + "/" + devicePassword + "/"
+				+ userID + "/" + os + "/" + deviceID;
+
+		// MacAddressNotNniqe
+		String response = WebServiceConnector.getResponeString(url);
+
+		if (response == null) {
+			return "null";
+		}
+
+		JSONObject obj = new JSONObject(response);
+		if (obj.getString("status").equals("Success")) {
+			saveDeviceID(obj.getInt("id"));
+			return "true";
+		} else if (obj.getString("status").contains("MacAddressNotNniqe")) {
+			return "error_MacAddressNotNniqe";
+		}
+		return "false";
+	}
+
+	public static void saveDeviceID(int deviceID) throws IOException {
+		File addDeviceFile = new File("configfile.txt");
+		BufferedReader brTest = new BufferedReader(new FileReader(addDeviceFile));
+		String[] arr = brTest.readLine().split(" , ");
+
+		try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("configfile.txt", false)))) {
+			out.println(arr[0] + " , " + arr[1] + " , " + deviceID);
+		} catch (IOException e) {
+		}
+	}
+
+	public static void markDeviceAsAdded() throws IOException {
+		File addDeviceFile = new File("configfile.txt");
+		BufferedReader brTest = new BufferedReader(new FileReader(addDeviceFile));
+		String[] arr = brTest.readLine().split(" , ");
+
+		try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("configfile.txt", false)))) {
+			out.println(1 + " , " + arr[1] + " , " + arr[2]);
+		} catch (IOException e) {
+		}
+	}
+
 	public static String[] readConfigFile() throws IOException {
 		File addDeviceFile = new File("configfile.txt");
 		BufferedReader brTest = new BufferedReader(new FileReader(addDeviceFile));
 		String[] arr = brTest.readLine().split(" , ");
 		return arr;
+	}
+
+	public static void logout() throws IOException {
+		File addDeviceFile = new File("configfile.txt");
+		BufferedReader brTest = new BufferedReader(new FileReader(addDeviceFile));
+		String[] arr = brTest.readLine().split(" , ");
+
+		try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("configfile.txt", false)))) {
+			out.println(arr[0] + " , " + 0 + " , " + arr[2]);
+		} catch (IOException e) {
+		}
 	}
 
 	public static void errorMsg(String message) {
