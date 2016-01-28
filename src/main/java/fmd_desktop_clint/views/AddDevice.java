@@ -2,10 +2,13 @@ package fmd_desktop_clint.views;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
@@ -18,6 +21,12 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import fmd_desktop_clint.util.CommonUtil;
+import fmd_desktop_clint.util.WebServiceConnector;
 
 public class AddDevice extends JFrame {
 	public static final File addDeviceFile = new File("devicefile.txt");
@@ -104,7 +113,7 @@ public class AddDevice extends JFrame {
 								}
 
 								// add here
-								
+
 								dispose();
 							} else {
 								String message = "password and re-password are not equal";
@@ -160,4 +169,62 @@ public class AddDevice extends JFrame {
 		return sb.toString();
 	}
 
+	public static String registerUserDevice(int deviceName, String devicePassword) throws JSONException, IOException {
+
+		String os = System.getProperty("os.name").toLowerCase().contains("windows") ? "WINDOWS" : "LINUX";
+		int userID = CommonUtil.getUserID();
+		String deviceID = getMacAddress();
+
+		String url = "http://localhost:8080/fmd/webService/device/register/" + deviceName + "/" + devicePassword + "/"
+				+ userID + "/" + os + "/" + deviceID;
+
+		// MacAddressNotNniqe
+		String response = WebServiceConnector.getResponeString(url);
+
+		if (response == null) {
+			return "null";
+		}
+
+		JSONObject obj = new JSONObject(response);
+		if (obj.getString("status").equals("Success")) {
+			saveDeviceID(obj.getInt("id"));
+			return "true";
+		} else if (obj.getString("status").contains("MacAddressNotNniqe")) {
+			return "error_MacAddressNotNniqe";
+		}
+		return "false";
+	}
+
+	public static void saveDeviceID(int deviceID) throws IOException {
+		File addDeviceFile = new File("configfile.txt");
+		BufferedReader brTest = new BufferedReader(new FileReader(addDeviceFile));
+		String[] arr = brTest.readLine().split(" , ");
+
+		try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("configfile.txt", false)))) {
+			out.println(arr[0] + " , " + arr[1] + " , " + deviceID);
+		} catch (IOException e) {
+		}
+	}
+
+	public static void markDeviceAsAdded() throws IOException {
+		File addDeviceFile = new File("configfile.txt");
+		BufferedReader brTest = new BufferedReader(new FileReader(addDeviceFile));
+		String[] arr = brTest.readLine().split(" , ");
+
+		try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("configfile.txt", false)))) {
+			out.println(1 + " , " + arr[1] + " , " + arr[2]);
+		} catch (IOException e) {
+		}
+	}
+
+	public static void logout() throws IOException {
+		File addDeviceFile = new File("configfile.txt");
+		BufferedReader brTest = new BufferedReader(new FileReader(addDeviceFile));
+		String[] arr = brTest.readLine().split(" , ");
+
+		try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("configfile.txt", false)))) {
+			out.println(arr[0] + " , " + 0 + " , " + arr[2]);
+		} catch (IOException e) {
+		}
+	}
 }
