@@ -30,7 +30,6 @@ public class SocketClient implements Runnable {
 		Out = new ObjectOutputStream(socket.getOutputStream());
 		Out.flush();
 		In = new ObjectInputStream(socket.getInputStream());
-
 	}
 
 	@Override
