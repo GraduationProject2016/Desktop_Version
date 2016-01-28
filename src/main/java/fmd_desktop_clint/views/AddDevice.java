@@ -36,6 +36,7 @@ public class AddDevice extends JFrame {
 		super("Find My Device | Add  Device");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
+		this.setResizable(false);
 		setBounds(250, 115, 800, 550);
 		JPanel panel = new JPanel();
 		add(panel);

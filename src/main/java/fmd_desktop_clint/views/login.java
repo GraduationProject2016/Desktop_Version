@@ -45,6 +45,7 @@ public class login extends JFrame {
 			}
 		}
 
+		this.setResizable(false);
 		if (flag) {
 			frame.dispose();
 			new AddDevice().setVisible(true);
