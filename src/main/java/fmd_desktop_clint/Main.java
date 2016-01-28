@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import fmd_desktop_clint.util.CommonUtil;
 import fmd_desktop_clint.views.AddDevice;
+import fmd_desktop_clint.views.ConnectToServer;
 import fmd_desktop_clint.views.login;
 
 public class Main {
@@ -25,7 +26,7 @@ public class Main {
 		// }
 		// });
 		//System.out.println(System.getProperty("os.name").toLowerCase().contains("windows") );
-		new login();
+//		new login();
 		// System.out.println(
 		// WebServiceConnector.getResponeString("http://codeforces.com/api/user.rating?handle=mazen_ibrahim"));
 
@@ -42,6 +43,8 @@ public class Main {
 		// System.out.println(JsonHandler.getMessageDtoJson(msg));
 		// } catch (Exception ex) {
 		// }
+		
+		ConnectToServer con = new ConnectToServer();
 
 	}
 }

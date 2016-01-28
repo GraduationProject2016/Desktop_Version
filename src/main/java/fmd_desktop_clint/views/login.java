@@ -222,7 +222,7 @@ public class login extends JFrame {
 		int deviceID = getMacAddress();
 
 		String url = "http://localhost:8080/fmd/webService/device/register/" + deviceName + "/" + devicePassword + "/"
-				+ userID + "/" + os + "/" + deviceID;
+			+ userID + "/" + os + "/" + deviceID;
 
 		// MacAddressNotNniqe
 		String response = WebServiceConnector.getResponeString(url);
