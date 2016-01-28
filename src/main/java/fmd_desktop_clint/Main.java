@@ -44,7 +44,8 @@ public class Main {
 		// } catch (Exception ex) {
 		// }
 		
-		ConnectToServer con = new ConnectToServer();
+//		ConnectToServer con = new ConnectToServer();
+		login log = new login();
 
 	}
 }
