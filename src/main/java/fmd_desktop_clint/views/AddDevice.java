@@ -1,5 +1,7 @@
 package fmd_desktop_clint.views;
 
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
@@ -29,25 +31,35 @@ import fmd_desktop_clint.util.CommonUtil;
 import fmd_desktop_clint.util.WebServiceConnector;
 
 public class AddDevice extends JFrame {
-	public static final File addDeviceFile = new File("devicefile.txt");
-
-	public AddDevice() throws IOException {
+	public AddDevice() {
 		super("Add  Device");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-		if (!addDeviceFile.exists()) {
-			addDeviceFile.createNewFile();
-
-			setBounds(250, 115, 800, 550);
-			JPanel panel = new JPanel();
-			add(panel);
-			placeComponents(panel);
-			setVisible(true);
-
-		} else {
-			dispose();
+		setBounds(250, 115, 800, 550);
+		JPanel panel = new JPanel();
+		add(panel);
+		try {
+			if (CommonUtil.isAddedDevice()) {
+				placeMessage(panel);
+			} else {
+				placeComponents(panel);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
+		setVisible(true);
 
+	}
+
+	private void placeMessage(JPanel panel) {
+		panel.setLayout(null);
+		JLabel message = new JLabel("This Computer is already added Successfully");
+		message.setBounds(70, 100, 750, 100);
+		message.setFont(new Font("Serif", Font.PLAIN, 35));
+		message.setOpaque(true);
+		// message.setBackground(Color.GRAY);
+		message.setForeground(Color.red);
+		panel.add(message);
 	}
 
 	private void placeComponents(JPanel panel) {
@@ -90,47 +102,40 @@ public class AddDevice extends JFrame {
 							String pass = String.valueOf(passwordText.getPassword());
 							String rePass = String.valueOf(RepasswordText.getPassword());
 							if (pass.equals(rePass)) {
-								String mac = getMacAddress();
-								System.out.println(mac);
-
-								FileWriter fw = null;
+								String response = "false";
 								try {
-									fw = new FileWriter(addDeviceFile);
-								} catch (IOException e1) {
-
-									e1.printStackTrace();
-								}
-								BufferedWriter bw = new BufferedWriter(fw);
-								try {
-									bw.write("1");
-								} catch (IOException e1) {
-									e1.printStackTrace();
-								}
-								try {
-									bw.close();
-								} catch (IOException e1) {
+									response = registerUserDevice(deviceName, pass);
+								} catch (JSONException | IOException e1) {
 									e1.printStackTrace();
 								}
 
-								// add here
+								if (response.equals("true")) {
+									try {
+										markDeviceAsAdded();
+									} catch (IOException e1) {
+										e1.printStackTrace();
+									}
+									dispose();
+									new AddDevice().setVisible(true);
+								} else if (response.equals("null")) {
+									errorMsg("Please check internet connection.");
+								} else if (response.equals("error_MacAddressNotNniqe")) {
+									errorMsg("This device is already added by another user.");
+								} else if (response.equals("false")) {
+									errorMsg("There is an error please try again.");
+								}
 
-								dispose();
 							} else {
-								String message = "password and re-password are not equal";
-								JOptionPane.showMessageDialog(new JFrame(), message, "Dialog",
-										JOptionPane.ERROR_MESSAGE);
+								errorMsg("password and re-password are not equal");
 							}
 						} else {
-							String message = "you should Re-Enter RePassword";
-							JOptionPane.showMessageDialog(new JFrame(), message, "Dialog", JOptionPane.ERROR_MESSAGE);
+							errorMsg("you should Re-Enter RePassword");
 						}
 					} else {
-						String message = "you should Enter Password";
-						JOptionPane.showMessageDialog(new JFrame(), message, "Dialog", JOptionPane.ERROR_MESSAGE);
+						errorMsg("you should Enter Password");
 					}
 				} else {
-					String message = "you should Enter Devcie Name";
-					JOptionPane.showMessageDialog(new JFrame(), message, "Dialog", JOptionPane.ERROR_MESSAGE);
+					errorMsg("you should Enter Devcie Name");
 				}
 
 			}
@@ -138,54 +143,45 @@ public class AddDevice extends JFrame {
 
 	}
 
+	public static void errorMsg(String message) {
+		JOptionPane.showMessageDialog(new JFrame(), message, "Dialog", JOptionPane.ERROR_MESSAGE);
+	}
+
 	public static String getMacAddress() {
 		InetAddress ip = null;
 		StringBuilder sb = new StringBuilder();
 		try {
-
 			ip = InetAddress.getLocalHost();
-			System.out.println("Current IP address : " + ip.getHostAddress());
-
 			NetworkInterface network = NetworkInterface.getByInetAddress(ip);
-
+			System.out.println(network.getHardwareAddress().toString());
 			byte[] mac = network.getHardwareAddress();
-
-			System.out.print("Current MAC address : ");
-
-			for (int i = 0; i < mac.length; i++) {
+			for (int i = 0; i < mac.length; i++)
 				sb.append(String.format("%02X%s", mac[i], (i < mac.length - 1) ? "-" : ""));
-			}
-			System.out.println(sb.toString());
 
-		} catch (UnknownHostException e) {
-
+		} catch (UnknownHostException | SocketException e) {
 			e.printStackTrace();
-
-		} catch (SocketException e) {
-
-			e.printStackTrace();
-
 		}
 		return sb.toString();
 	}
 
-	public static String registerUserDevice(int deviceName, String devicePassword) throws JSONException, IOException {
+	public static String registerUserDevice(String deviceName, String devicePassword)
+			throws JSONException, IOException {
 
 		String os = System.getProperty("os.name").toLowerCase().contains("windows") ? "WINDOWS" : "LINUX";
 		int userID = CommonUtil.getUserID();
 		String deviceID = getMacAddress();
 
 		String url = "http://localhost:8080/fmd/webService/device/register/" + deviceName + "/" + devicePassword + "/"
-				+ userID + "/" + os + "/" + deviceID;
+				+ deviceID + "/" + os + "/" + userID;
 
-		// MacAddressNotNniqe
 		String response = WebServiceConnector.getResponeString(url);
-
+		System.out.println(url);
 		if (response == null) {
 			return "null";
 		}
 
 		JSONObject obj = new JSONObject(response);
+
 		if (obj.getString("status").equals("Success")) {
 			saveDeviceID(obj.getInt("id"));
 			return "true";

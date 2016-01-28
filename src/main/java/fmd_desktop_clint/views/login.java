@@ -5,15 +5,11 @@ import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.URL;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -27,7 +23,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import fmd_desktop_clint.util.CommonUtil;
-import fmd_desktop_clint.util.JsonHandler;
 import fmd_desktop_clint.util.WebServiceConnector;
 
 public class login extends JFrame {
