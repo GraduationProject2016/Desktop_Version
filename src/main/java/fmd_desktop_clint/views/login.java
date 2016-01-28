@@ -32,7 +32,7 @@ public class login extends JFrame {
 	private final static String USER_AGENT = "Mozilla/5.0";
 	private static String userName;
 	private static String password;
-	public static JFrame frame = new JFrame("Login");
+	public static JFrame frame = new JFrame("Find My Device | Login");
 
 	public login() throws IOException {
 		boolean flag = false;

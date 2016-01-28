@@ -24,6 +24,7 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
+import org.eclipse.persistence.logging.LogFormatter;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -32,7 +33,7 @@ import fmd_desktop_clint.util.WebServiceConnector;
 
 public class AddDevice extends JFrame {
 	public AddDevice() {
-		super("Add  Device");
+		super("Find My Device | Add  Device");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		setBounds(250, 115, 800, 550);
@@ -175,7 +176,7 @@ public class AddDevice extends JFrame {
 				+ deviceID + "/" + os + "/" + userID;
 
 		String response = WebServiceConnector.getResponeString(url);
-		System.out.println(url);
+
 		if (response == null) {
 			return "null";
 		}
@@ -222,5 +223,7 @@ public class AddDevice extends JFrame {
 			out.println(arr[0] + " , " + 0 + " , " + arr[2]);
 		} catch (IOException e) {
 		}
+
+		new login().setVisible(true);
 	}
 }
