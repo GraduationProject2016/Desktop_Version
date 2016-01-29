@@ -27,6 +27,7 @@ public class Main {
 		// System.out.println(System.getProperty("os.name").toLowerCase().contains("windows")
 		// );
 		new login();
+
 		// System.out.println(
 		// WebServiceConnector.getResponeString("http://codeforces.com/api/user.rating?handle=mazen_ibrahim"));
 
