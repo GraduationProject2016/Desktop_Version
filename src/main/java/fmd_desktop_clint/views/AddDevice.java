@@ -47,6 +47,7 @@ public class AddDevice extends JFrame {
 		setBounds(250, 115, 800, 550);
 		JPanel panel = new JPanel();
 		add(panel);
+
 		try {
 			if (CommonUtil.isAddedDevice()) {
 				placeMessage(panel);
@@ -123,32 +124,40 @@ public class AddDevice extends JFrame {
 
 	private void placeComponents(JPanel panel) {
 		panel.setLayout(null);
+
+		JLabel message = new JLabel("Register Your Device to use our service.");
+		message.setBounds(150, 20, 750, 100);
+		message.setFont(new Font("Time New Roman", Font.ITALIC, 30));
+		message.setOpaque(true);
+		message.setForeground(Color.BLACK);
+		panel.add(message);
+
 		JLabel deviceNameLabel = new JLabel("Device Name");
-		deviceNameLabel.setBounds(250, 100, 80, 25);
+		deviceNameLabel.setBounds(250, 140, 80, 25);
 		panel.add(deviceNameLabel);
 
 		final JTextField deviceNameInput = new JTextField(20);
-		deviceNameInput.setBounds(350, 100, 160, 25);
+		deviceNameInput.setBounds(350, 140, 160, 25);
 		panel.add(deviceNameInput);
 
 		JLabel passwordLabel = new JLabel("Password");
-		passwordLabel.setBounds(250, 140, 80, 25);
+		passwordLabel.setBounds(250, 180, 80, 25);
 		panel.add(passwordLabel);
 
 		final JPasswordField passwordText = new JPasswordField(20);
-		passwordText.setBounds(350, 140, 160, 25);
+		passwordText.setBounds(350, 180, 160, 25);
 		panel.add(passwordText);
 
 		JLabel RepasswordLabel = new JLabel("RePassword");
-		RepasswordLabel.setBounds(250, 180, 80, 25);
+		RepasswordLabel.setBounds(250, 220, 80, 25);
 		panel.add(RepasswordLabel);
 
 		final JPasswordField RepasswordText = new JPasswordField(20);
-		RepasswordText.setBounds(350, 180, 160, 25);
+		RepasswordText.setBounds(350, 220, 160, 25);
 		panel.add(RepasswordText);
 
-		JButton addDevice = new JButton("Add");
-		addDevice.setBounds(350, 230, 160, 25);
+		JButton addDevice = new JButton("Add device");
+		addDevice.setBounds(350, 260, 160, 25);
 		panel.add(addDevice);
 		addDevice.addActionListener(new ActionListener() {
 

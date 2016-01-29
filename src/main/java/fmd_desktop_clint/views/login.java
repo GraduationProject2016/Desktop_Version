@@ -1,6 +1,7 @@
 package fmd_desktop_clint.views;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
@@ -39,6 +40,8 @@ public class login extends JFrame {
 	public static JFrame frame = new JFrame("Find My Device | Login");
 
 	public login() throws IOException {
+		super("Find My Device | Login");
+
 		boolean flag = false;
 		if (new File("configfile.txt").exists()) {
 			String[] arr = readConfigFile();
@@ -49,15 +52,14 @@ public class login extends JFrame {
 			}
 		}
 
-		this.setResizable(false);
 		if (flag) {
-			frame.dispose();
+			this.dispose();
 			new AddDevice().setVisible(true);
 		} else {
 			this.setResizable(false);
-			setBounds(250, 115, 800, 550);
+			this.setBounds(250, 115, 800, 550);
 			JPanel panel = new JPanel();
-			add(panel);
+			this.add(panel);
 
 			placeComponents(panel);
 
@@ -134,6 +136,13 @@ public class login extends JFrame {
 	private static void placeComponents(JPanel panel) {
 
 		panel.setLayout(null);
+
+		JLabel message = new JLabel("Find My Device");
+		message.setBounds(255, 20, 750, 100);
+		message.setFont(new Font("Time New Roman", Font.ITALIC, 36));
+		message.setOpaque(true);
+		message.setForeground(Color.BLACK);
+		panel.add(message);
 
 		JLabel userLabel = new JLabel("Username/Email");
 		userLabel.setBounds(250, 140, 100, 25);
