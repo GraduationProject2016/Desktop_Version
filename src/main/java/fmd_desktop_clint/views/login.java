@@ -1,5 +1,6 @@
 package fmd_desktop_clint.views;
 
+import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
@@ -10,14 +11,18 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.MalformedURLException;
-
-import javax.swing.ImageIcon;
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
+import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JTextField;
 
 import org.json.JSONException;
@@ -60,14 +65,72 @@ public class login extends JFrame {
 			// panel.setBounds(800, 550, 800, 100);
 			frame.add(panel);
 			placeComponents(panel);
+			// Creates a menubar for a JFrame
+			JMenuBar menuBar = new JMenuBar();
 
-			frame.setVisible(true);
+			// Add the menubar to the frame
+			setJMenuBar(menuBar);
+
+			// Define and add two drop down menu to the menubar
+			JMenu fileMenu = new JMenu("File");
+			JMenu editMenu = new JMenu("Edit");
+			JMenu helpMenu = new JMenu("Help");
+			JMenu aboutMenu = new JMenu("about");
+			menuBar.add(fileMenu);
+			menuBar.add(editMenu);
+			menuBar.add(helpMenu);
+			menuBar.add(aboutMenu);
+			menuBar.add(editMenu);
+
+			// Create and add simple menu item to one of the drop down menu
+			JMenuItem newAction = new JMenuItem("New");
+			JMenuItem openAction = new JMenuItem("Open");
+			JMenuItem exitAction = new JMenuItem("Exit");
+			JMenuItem cutAction = new JMenuItem("Cut");
+			JMenuItem copyAction = new JMenuItem("Copy");
+			JMenuItem pasteAction = new JMenuItem("Paste");
+
+			// Create and add CheckButton as a menu item to one of the drop down
+			// menu
+			JCheckBoxMenuItem checkAction = new JCheckBoxMenuItem("Check Action");
+			// Create and add Radio Buttons as simple menu items to one of the
+			// drop
+			// down menu
+			JRadioButtonMenuItem radioAction1 = new JRadioButtonMenuItem("Radio Button1");
+			JRadioButtonMenuItem radioAction2 = new JRadioButtonMenuItem("Radio Button2");
+			// Create a ButtonGroup and add both radio Button to it. Only one
+			// radio
+			// button in a ButtonGroup can be selected at a time.
+			ButtonGroup bg = new ButtonGroup();
+			bg.add(radioAction1);
+			bg.add(radioAction2);
+			fileMenu.add(newAction);
+			fileMenu.add(openAction);
+			fileMenu.add(checkAction);
+			fileMenu.addSeparator();
+			fileMenu.add(exitAction);
+			editMenu.add(cutAction);
+			editMenu.add(copyAction);
+			editMenu.add(pasteAction);
+			editMenu.addSeparator();
+			editMenu.add(radioAction1);
+			editMenu.add(radioAction2);
+			// Add a listener to the New menu item. actionPerformed() method
+			// will
+			// invoked, if user triggred this menu item
+			newAction.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent arg0) {
+					System.out.println("You have clicked on the new action");
+				}
+			});
+
+			setVisible(true);
 		}
 	}
 
 	private static void placeComponents(JPanel panel) {
 
-		panel.setLayout(null);
+		panel.setLayout(new BorderLayout());
 
 		JLabel userLabel = new JLabel("Username/Email");
 		userLabel.setBounds(250, 140, 100, 25);
@@ -233,4 +296,5 @@ public class login extends JFrame {
 	public static void errorMsg(String message) {
 		JOptionPane.showMessageDialog(new JFrame(), message, "Dialog", JOptionPane.ERROR_MESSAGE);
 	}
+
 }

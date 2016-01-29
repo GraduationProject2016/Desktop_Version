@@ -24,7 +24,8 @@ public class Main {
 		// dialog.setVisible(true);
 		// }
 		// });
-		//System.out.println(System.getProperty("os.name").toLowerCase().contains("windows") );
+		// System.out.println(System.getProperty("os.name").toLowerCase().contains("windows")
+		// );
 		new login();
 		// System.out.println(
 		// WebServiceConnector.getResponeString("http://codeforces.com/api/user.rating?handle=mazen_ibrahim"));
@@ -42,6 +43,5 @@ public class Main {
 		// System.out.println(JsonHandler.getMessageDtoJson(msg));
 		// } catch (Exception ex) {
 		// }
-
 	}
 }
