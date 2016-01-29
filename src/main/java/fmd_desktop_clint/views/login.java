@@ -1,6 +1,6 @@
 package fmd_desktop_clint.views;
 
-import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
@@ -12,9 +12,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.MalformedURLException;
 
-import javax.swing.ButtonGroup;
 import javax.swing.JButton;
-import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -23,7 +21,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
-import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JTextField;
 
 import org.json.JSONException;
@@ -57,81 +54,86 @@ public class login extends JFrame {
 			frame.dispose();
 			new AddDevice().setVisible(true);
 		} else {
-			frame.setSize(800, 550);
-			frame.setBounds(250, 115, 800, 550);
-
-			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
+			this.setResizable(false);
+			setBounds(250, 115, 800, 550);
 			JPanel panel = new JPanel();
-			// panel.setBounds(800, 550, 800, 100);
-			frame.add(panel);
-			placeComponents(panel);
-			// Creates a menubar for a JFrame
-			JMenuBar menuBar = new JMenuBar();
+			add(panel);
 
-			// Add the menubar to the frame
+			placeComponents(panel);
+
+			setVisible(true);
+			JMenuBar menuBar = new JMenuBar();
 			setJMenuBar(menuBar);
 
 			// Define and add two drop down menu to the menubar
-			JMenu fileMenu = new JMenu("File");
-			JMenu editMenu = new JMenu("Edit");
+			JMenu web = new JMenu("Web");
 			JMenu helpMenu = new JMenu("Help");
 			JMenu aboutMenu = new JMenu("about");
-			menuBar.add(fileMenu);
-			menuBar.add(editMenu);
+			menuBar.add(web);
 			menuBar.add(helpMenu);
 			menuBar.add(aboutMenu);
-			menuBar.add(editMenu);
 
 			// Create and add simple menu item to one of the drop down menu
-			JMenuItem newAction = new JMenuItem("New");
+			JMenuItem registerAction = new JMenuItem("Register");
 			JMenuItem openAction = new JMenuItem("Open");
 			JMenuItem exitAction = new JMenuItem("Exit");
-			JMenuItem cutAction = new JMenuItem("Cut");
-			JMenuItem copyAction = new JMenuItem("Copy");
-			JMenuItem pasteAction = new JMenuItem("Paste");
 
-			// Create and add CheckButton as a menu item to one of the drop down
-			// menu
-			JCheckBoxMenuItem checkAction = new JCheckBoxMenuItem("Check Action");
-			// Create and add Radio Buttons as simple menu items to one of the
-			// drop
-			// down menu
-			JRadioButtonMenuItem radioAction1 = new JRadioButtonMenuItem("Radio Button1");
-			JRadioButtonMenuItem radioAction2 = new JRadioButtonMenuItem("Radio Button2");
-			// Create a ButtonGroup and add both radio Button to it. Only one
-			// radio
-			// button in a ButtonGroup can be selected at a time.
-			ButtonGroup bg = new ButtonGroup();
-			bg.add(radioAction1);
-			bg.add(radioAction2);
-			fileMenu.add(newAction);
-			fileMenu.add(openAction);
-			fileMenu.add(checkAction);
-			fileMenu.addSeparator();
-			fileMenu.add(exitAction);
-			editMenu.add(cutAction);
-			editMenu.add(copyAction);
-			editMenu.add(pasteAction);
-			editMenu.addSeparator();
-			editMenu.add(radioAction1);
-			editMenu.add(radioAction2);
-			// Add a listener to the New menu item. actionPerformed() method
-			// will
-			// invoked, if user triggred this menu item
-			newAction.addActionListener(new ActionListener() {
+			// JCheckBoxMenuItem checkAction = new JCheckBoxMenuItem("Check
+			// Action");
+			// JRadioButtonMenuItem radioAction1 = new
+			// JRadioButtonMenuItem("Radio Button1");
+			// JRadioButtonMenuItem radioAction2 = new
+			// JRadioButtonMenuItem("Radio Button2");
+
+			// ButtonGroup bg = new ButtonGroup();
+			// bg.add(radioAction1);
+			// bg.add(radioAction2);
+			web.add(registerAction);
+			web.add(openAction);
+			// web.add(checkAction);
+			// web.addSeparator();
+			// web.add(radioAction1);
+			// web.add(radioAction2);
+			web.addSeparator();
+			web.add(exitAction);
+
+			exitAction.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
-					System.out.println("You have clicked on the new action");
+					System.exit(0);
 				}
 			});
+			registerAction.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent arg0) {
+					try {
+						String url = "http://localhost:8080/fmd/signup.xhtml";
+						java.awt.Desktop.getDesktop().browse(java.net.URI.create(url));
+					} catch (MalformedURLException e) {
 
-			setVisible(true);
+						e.printStackTrace();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			});
+			openAction.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent arg0) {
+					try {
+						String url = "http://localhost:8080/fmd/";
+						java.awt.Desktop.getDesktop().browse(java.net.URI.create(url));
+					} catch (MalformedURLException e) {
+
+						e.printStackTrace();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			});
 		}
 	}
 
 	private static void placeComponents(JPanel panel) {
 
-		panel.setLayout(new BorderLayout());
+		panel.setLayout(null);
 
 		JLabel userLabel = new JLabel("Username/Email");
 		userLabel.setBounds(250, 140, 100, 25);
@@ -150,18 +152,18 @@ public class login extends JFrame {
 		panel.add(passwordText);
 
 		JButton loginButton = new JButton("login");
-		loginButton.setBounds(250, 250, 80, 25);
+		loginButton.setBounds(350, 220, 160, 25);
 		panel.add(loginButton);
 
-		JButton registerButton = new JButton("register");
-		registerButton.setBounds(430, 250, 80, 25);
+		JButton registerButton = new JButton("Do not have account ?");
+		registerButton.setBounds(250, 290, 260, 25);
 		panel.add(registerButton);
 		registerButton.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent arg0) {
 
 				try {
-					String url = "http://www.google.com";
+					String url = "http://localhost:8080/fmd/signup.xhtml";
 					java.awt.Desktop.getDesktop().browse(java.net.URI.create(url));
 				} catch (MalformedURLException e) {
 
@@ -188,9 +190,6 @@ public class login extends JFrame {
 							writer.println("0 , 0 , 0");
 							writer.close();
 						}
-
-						boolean isDeviceAdded = CommonUtil.isAddedDevice();
-
 						String response = "";
 						try {
 							response = isAuzorizedUser(userName, password);
@@ -198,13 +197,11 @@ public class login extends JFrame {
 							e1.printStackTrace();
 						}
 
-						if (!isDeviceAdded && response.equals("true")) {
+						if (response.equals("true")) {
 							new AddDevice().setVisible(true);
 							frame.dispose();
 						} else if (response.equals("null")) {
 							errorMsg("Please check internet connection.");
-						} else if (isDeviceAdded) {
-							errorMsg("This device is already added.");
 						} else if (response.equals("error_not_active")) {
 							errorMsg("Please Activate your account, check your mail.");
 						} else if (response.equals("false")) {
@@ -281,17 +278,6 @@ public class login extends JFrame {
 		BufferedReader brTest = new BufferedReader(new FileReader(addDeviceFile));
 		String[] arr = brTest.readLine().split(" , ");
 		return arr;
-	}
-
-	public static void logout() throws IOException {
-		File addDeviceFile = new File("configfile.txt");
-		BufferedReader brTest = new BufferedReader(new FileReader(addDeviceFile));
-		String[] arr = brTest.readLine().split(" , ");
-
-		try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("configfile.txt", false)))) {
-			out.println(arr[0] + " , " + 0 + " , " + arr[2]);
-		} catch (IOException e) {
-		}
 	}
 
 	public static void errorMsg(String message) {
