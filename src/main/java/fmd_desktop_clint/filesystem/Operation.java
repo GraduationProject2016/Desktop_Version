@@ -2,6 +2,7 @@ package fmd_desktop_clint.filesystem;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -86,6 +87,17 @@ public class Operation {
 
 		return directory.createNewFile();
 
+	}
+
+	public static JSONObject getPCDeviceInfo() throws JSONException {
+		InetAddress ip = null;
+		JSONObject ob = new JSONObject();
+		ob.put("current_host_name", ip.getHostName());
+		ob.put("current_ip_address", ip.getHostAddress());
+		ob.put("operating_system_name", System.getProperty("os.name"));
+		ob.put("operating_system_type", System.getProperty("os.arch"));
+		ob.put("operating_system_version", System.getProperty("os.version"));
+		return ob;
 	}
 
 	public static JSONObject computerPathJson(String path) throws JSONException, IOException {
