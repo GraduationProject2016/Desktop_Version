@@ -47,4 +47,7 @@ public class Constants {
 	public static final String MESSAGE_USER = "reciver";
 	public static final String MESSAGE_TYPE = "type";
 
+	// command 
+	public static final String COMAND_COMMAND = "command";
+	public static final String COMAND_PARMS = "parms";
 }

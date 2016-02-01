@@ -7,10 +7,12 @@ package fmd_desktop_clint.util;
 import java.io.StringReader;
 
 import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
-import javax.json.JsonWriter;
 
+import fmd_desktop_clint.socet.dto.Command;
 import fmd_desktop_clint.socet.dto.MessageDto;
 
 /**
@@ -39,6 +41,29 @@ public class JsonHandler {
 				.add(Constants.MESSAGE_CONTENT, messageDto.getContent())
 				.add(Constants.MESSAGE_DEVICE, messageDto.getDeviceId())
 				.add(Constants.MESSAGE_USER, messageDto.getUserId()).build();
+		return jsonObject.toString();
+	}
+
+	public static Command getCommandObject(String str) {
+		JsonObject jsonObject = getJsonObjec(str);
+		JsonArray jsonArray = jsonObject.getJsonArray(Constants.COMAND_PARMS);
+		String[] arr = (jsonArray.size() == 0) ? null : new String[jsonArray.size()];
+		for (int i = 0; i < jsonArray.size(); i++) {
+			arr[i] = jsonArray.getString(i);
+		}
+		Command command = new Command(jsonObject.getString(Constants.COMAND_COMMAND), arr);
+		return command;
+	}
+
+	public static String getCommandJson(Command command) {
+		JsonArrayBuilder jsonArrayBuilder = Json.createArrayBuilder();
+		if (command.getParms() != null) {
+			for (String str : command.getParms()) {
+				jsonArrayBuilder.add(str);
+			}
+		}
+		JsonObject jsonObject = Json.createObjectBuilder().add(Constants.COMAND_COMMAND, command.getCommand())
+				.add(Constants.COMAND_PARMS, jsonArrayBuilder).build();
 		return jsonObject.toString();
 	}
 }
