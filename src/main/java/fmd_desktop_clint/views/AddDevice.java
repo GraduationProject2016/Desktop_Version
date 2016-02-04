@@ -15,11 +15,11 @@ import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.net.URL;
 import java.net.UnknownHostException;
 
-import javax.swing.ButtonGroup;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -28,10 +28,8 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
-import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JTextField;
 
-import org.eclipse.persistence.logging.LogFormatter;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -39,6 +37,10 @@ import fmd_desktop_clint.util.CommonUtil;
 import fmd_desktop_clint.util.WebServiceConnector;
 
 public class AddDevice extends JFrame {
+
+	private final static String filePath = System.getenv("APPDATA") + "\\Find My Device\\configfile.txt";
+	private final static String logFile = System.getenv("APPDATA") + "\\Find My Device\\log.txt";
+
 	public AddDevice() {
 		super("Find My Device | Add  Device");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -47,6 +49,10 @@ public class AddDevice extends JFrame {
 		setBounds(250, 115, 800, 550);
 		JPanel panel = new JPanel();
 		add(panel);
+
+		URL url = getClass().getResource("/resources/logo.png");
+		ImageIcon icon = new ImageIcon(url);
+		setIconImage(icon.getImage());
 
 		try {
 			if (CommonUtil.isAddedDevice()) {
@@ -65,30 +71,61 @@ public class AddDevice extends JFrame {
 		JMenu web = new JMenu("Web");
 		JMenu helpMenu = new JMenu("Help");
 		JMenu aboutMenu = new JMenu("about");
-		JMenuItem logoutMenu = new JMenuItem("logout");
+		JMenu dataMenu = new JMenu("Data");
+		JMenu serverMenu = new JMenu("Server");
+		JMenu logoutMenu = new JMenu("logout");
+
 		menuBar.add(web);
 		menuBar.add(helpMenu);
 		menuBar.add(aboutMenu);
+		menuBar.add(dataMenu);
+		menuBar.add(serverMenu);
 		menuBar.add(logoutMenu);
 
 		// Create and add simple menu item to one of the drop down menu
 		JMenuItem openAction = new JMenuItem("Open");
 		JMenuItem exitAction = new JMenuItem("Exit");
+		JMenuItem logoutAction = new JMenuItem("logout");
+		JMenuItem logsAction = new JMenuItem("show logs");
+		JMenuItem connectAction = new JMenuItem("connect");
 
 		web.add(openAction);
 		web.addSeparator();
 		web.add(exitAction);
+		logoutMenu.add(logoutAction);
+		dataMenu.add(logsAction);
+		serverMenu.add(connectAction);
 
 		exitAction.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				System.exit(0);
 			}
 		});
-		logoutMenu.addActionListener(new ActionListener() {
+		connectAction.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				dispose();
+				new ConnectToServer().setVisible(true);
+			}
+		});
+		logsAction.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				try {
+					if ((new File(logFile)).exists()) {
+
+						Process p = Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler " + logFile);
+						p.waitFor();
+
+					}
+				} catch (Exception ex) {
+					ex.printStackTrace();
+				}
+			}
+		});
+		logoutAction.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				try {
 					logout();
-					new login().setVisible(true);
+					new login();
 					dispose();
 				} catch (IOException e) {
 					e.printStackTrace();
@@ -260,33 +297,33 @@ public class AddDevice extends JFrame {
 	}
 
 	public static void saveDeviceID(int deviceID) throws IOException {
-		File addDeviceFile = new File("configfile.txt");
+		File addDeviceFile = new File(filePath);
 		BufferedReader brTest = new BufferedReader(new FileReader(addDeviceFile));
 		String[] arr = brTest.readLine().split(" , ");
 
-		try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("configfile.txt", false)))) {
+		try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(filePath, false)))) {
 			out.println(arr[0] + " , " + arr[1] + " , " + deviceID);
 		} catch (IOException e) {
 		}
 	}
 
 	public static void markDeviceAsAdded() throws IOException {
-		File addDeviceFile = new File("configfile.txt");
+		File addDeviceFile = new File(filePath);
 		BufferedReader brTest = new BufferedReader(new FileReader(addDeviceFile));
 		String[] arr = brTest.readLine().split(" , ");
 
-		try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("configfile.txt", false)))) {
+		try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(filePath, false)))) {
 			out.println(1 + " , " + arr[1] + " , " + arr[2]);
 		} catch (IOException e) {
 		}
 	}
 
 	public static void logout() throws IOException {
-		File addDeviceFile = new File("configfile.txt");
+		File addDeviceFile = new File(filePath);
 		BufferedReader brTest = new BufferedReader(new FileReader(addDeviceFile));
 		String[] arr = brTest.readLine().split(" , ");
 
-		try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("configfile.txt", false)))) {
+		try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(filePath, false)))) {
 			out.println(arr[0] + " , " + 0 + " , " + arr[2]);
 		} catch (IOException e) {
 		}

@@ -23,7 +23,7 @@ public class Connection {
 		}
 	}
 
-	public void signIn() {
+	public Boolean signIn() {
 		try {
 			MessageDto msg = new MessageDto(MessageDto.CLIENT_TO_SERVER);
 			msg.setDeviceId(deviceID);
@@ -32,7 +32,9 @@ public class Connection {
 			client.send(JsonHandler.getMessageDtoJson(msg));
 			System.out.println(JsonHandler.getMessageDtoJson(msg));
 		} catch (Exception ex) {
+			return false;
 		}
+		return true;
 	}
 
 	public void signOut() {

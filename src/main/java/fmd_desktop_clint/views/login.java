@@ -7,12 +7,20 @@ import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Date;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -27,7 +35,7 @@ import javax.swing.JTextField;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import fmd_desktop_clint.util.CommonUtil;
+import fmd_desktop_clint.socet.Connection;
 import fmd_desktop_clint.util.WebServiceConnector;
 
 public class login extends JFrame {
@@ -37,100 +45,195 @@ public class login extends JFrame {
 	private final static String USER_AGENT = "Mozilla/5.0";
 	private static String userName;
 	private static String password;
+	private final static String filePath = System.getenv("APPDATA") + "\\Find My Device\\configfile.txt";
+	private final static String logFile = System.getenv("APPDATA") + "\\Find My Device\\log.txt";
 	public static JFrame frame = new JFrame("Find My Device | Login");
 
-	public login() throws IOException {
-		super("Find My Device | Login");
+	public static void main(String[] args) throws IOException {
 
 		boolean flag = false;
-		if (new File("configfile.txt").exists()) {
+		if (new File(filePath).exists()) {
 			String[] arr = readConfigFile();
 			if (arr.length > 0) {
 				if (!arr[1].equals("0")) {
 					flag = true;
 				}
 			}
-		}
-
-		if (flag) {
-			this.dispose();
-			new AddDevice().setVisible(true);
 		} else {
-			this.setResizable(false);
-			this.setBounds(250, 115, 800, 550);
-			JPanel panel = new JPanel();
-			this.add(panel);
-
-			placeComponents(panel);
-
-			setVisible(true);
-			JMenuBar menuBar = new JMenuBar();
-			setJMenuBar(menuBar);
-
-			// Define and add two drop down menu to the menubar
-			JMenu web = new JMenu("Web");
-			JMenu helpMenu = new JMenu("Help");
-			JMenu aboutMenu = new JMenu("about");
-			menuBar.add(web);
-			menuBar.add(helpMenu);
-			menuBar.add(aboutMenu);
-
-			// Create and add simple menu item to one of the drop down menu
-			JMenuItem registerAction = new JMenuItem("Register");
-			JMenuItem openAction = new JMenuItem("Open");
-			JMenuItem exitAction = new JMenuItem("Exit");
-
-			// JCheckBoxMenuItem checkAction = new JCheckBoxMenuItem("Check
-			// Action");
-			// JRadioButtonMenuItem radioAction1 = new
-			// JRadioButtonMenuItem("Radio Button1");
-			// JRadioButtonMenuItem radioAction2 = new
-			// JRadioButtonMenuItem("Radio Button2");
-
-			// ButtonGroup bg = new ButtonGroup();
-			// bg.add(radioAction1);
-			// bg.add(radioAction2);
-			web.add(registerAction);
-			web.add(openAction);
-			// web.add(checkAction);
-			// web.addSeparator();
-			// web.add(radioAction1);
-			// web.add(radioAction2);
-			web.addSeparator();
-			web.add(exitAction);
-
-			exitAction.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent arg0) {
-					System.exit(0);
-				}
-			});
-			registerAction.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent arg0) {
-					try {
-						String url = "http://localhost:8080/fmd/signup.xhtml";
-						java.awt.Desktop.getDesktop().browse(java.net.URI.create(url));
-					} catch (MalformedURLException e) {
-
-						e.printStackTrace();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				}
-			});
-			openAction.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent arg0) {
-					try {
-						String url = "http://localhost:8080/fmd/";
-						java.awt.Desktop.getDesktop().browse(java.net.URI.create(url));
-					} catch (MalformedURLException e) {
-
-						e.printStackTrace();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				}
-			});
+			File addDeviceFile = new File(filePath);
+			if (!addDeviceFile.exists()) {
+				addDeviceFile.getParentFile().mkdirs();
+				addDeviceFile.createNewFile();
+				new File(logFile).createNewFile();
+				PrintWriter writer = new PrintWriter(addDeviceFile, "UTF-8");
+				writer.println("0 , 0 , 0");
+				writer.close();
+			}
 		}
+
+
+		String jarPath = getautostart();
+		copyFile(getrunningdir() + "\\Find My Device.exe", jarPath + "\\Find My Device.exe");
+		
+		String path = new File(".").getCanonicalPath();
+		if (path.contains("Microsoft\\Windows\\Start Menu\\Programs\\Startup")) {
+			WorkInBackground(args);
+		} else if (flag) {
+			new AddDevice().setVisible(true);
+			WorkInBackground(args);
+		} else {
+			new login();
+			WorkInBackground(args);
+		}
+
+	}
+
+	public static void copyFile(String source, String dest) throws IOException {
+		if (!new File(dest).exists()) {
+			InputStream input = null;
+			OutputStream output = null;
+			try {
+				input = new FileInputStream(source);
+				output = new FileOutputStream(dest);
+				byte[] buf = new byte[1024];
+				int bytesRead;
+				while ((bytesRead = input.read(buf)) > 0) {
+					output.write(buf, 0, bytesRead);
+				}
+			} finally {
+				input.close();
+				output.close();
+			}
+		}
+	}
+
+	public static String getautostart() {
+		return System.getProperty("java.io.tmpdir").replace("Local\\Temp\\",
+				"Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup");
+	}
+
+	public static String getrunningdir() throws IOException {
+		String runningdir = new File(".").getCanonicalPath().toString();
+		return runningdir;
+	}
+
+	public static void WorkInBackground(String[] args) throws IOException {
+		String customMessage = "default";
+		if (args.length > 0) {
+			customMessage = args[0];
+		}
+
+		FileOutputStream out = new FileOutputStream(new File(logFile), true);
+		PrintStream printStream = new PrintStream(out);
+		System.setOut(printStream);
+		Runtime.getRuntime().addShutdownHook(new Thread(new ShutdownHook()));
+
+		onStart();
+		doWork(customMessage);
+	}
+
+	private static void doWork(String customMessage) throws IOException {
+		boolean flag = true;
+		while (flag) {
+			Connection con = new Connection();
+			if (con.signIn()) {
+				flag = false;
+			}
+			System.out.println("Connect to server at " + new Date() + " " + customMessage);
+			try {
+				Thread.sleep(60000 * 15);
+			} catch (InterruptedException e) {
+				System.out.println("Interrupted at " + new Date());
+			}
+		}
+	}
+
+	private static void onStart() {
+		System.out.println("Starts at " + new Date());
+	}
+
+	private static class ShutdownHook implements Runnable {
+
+		public void run() {
+			onStop();
+		}
+
+		private void onStop() {
+			// System.out.println("Ends at " + new Date());
+			System.out.flush();
+			System.out.close();
+		}
+
+	}
+
+	public login() {
+		super("Find My Device | Login");
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+		this.setResizable(false);
+		frame = this;
+		setBounds(250, 115, 800, 550);
+		JPanel panel = new JPanel();
+		add(panel);
+
+		URL url = getClass().getResource("/resources/logo.png");
+		ImageIcon icon = new ImageIcon(url);
+		setIconImage(icon.getImage());
+
+		placeComponents(panel);
+		setVisible(true);
+
+		JMenuBar menuBar = new JMenuBar();
+		setJMenuBar(menuBar);
+		JMenu web = new JMenu("Web");
+		JMenu helpMenu = new JMenu("Help");
+		JMenu aboutMenu = new JMenu("about");
+		menuBar.add(web);
+		menuBar.add(helpMenu);
+		menuBar.add(aboutMenu);
+
+		// Create and add simple menu item to one of the drop down menu
+		JMenuItem registerAction = new JMenuItem("Register");
+		JMenuItem openAction = new JMenuItem("Open");
+		JMenuItem exitAction = new JMenuItem("Exit");
+
+		web.add(registerAction);
+		web.add(openAction);
+		web.addSeparator();
+		web.add(exitAction);
+
+		exitAction.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				System.exit(0);
+			}
+		});
+		registerAction.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				try {
+					String url = "http://localhost:8080/fmd/signup.xhtml";
+					java.awt.Desktop.getDesktop().browse(java.net.URI.create(url));
+				} catch (MalformedURLException e) {
+
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		});
+		openAction.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				try {
+					String url = "http://localhost:8080/fmd/";
+					java.awt.Desktop.getDesktop().browse(java.net.URI.create(url));
+				} catch (MalformedURLException e) {
+
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		});
+
 	}
 
 	private static void placeComponents(JPanel panel) {
@@ -161,7 +264,7 @@ public class login extends JFrame {
 		panel.add(passwordText);
 
 		JButton loginButton = new JButton("login");
-		loginButton.setBounds(350, 220, 160, 25);
+		loginButton.setBounds(350, 220, 160, 25); 
 		panel.add(loginButton);
 
 		JButton registerButton = new JButton("Do not have account ?");
@@ -192,13 +295,7 @@ public class login extends JFrame {
 				if (!userName.equals("") && !password.equals("")) {
 
 					try {
-						File addDeviceFile = new File("configfile.txt");
-						if (!addDeviceFile.exists()) {
-							addDeviceFile.createNewFile();
-							PrintWriter writer = new PrintWriter(addDeviceFile, "UTF-8");
-							writer.println("0 , 0 , 0");
-							writer.close();
-						}
+
 						String response = "";
 						try {
 							response = isAuzorizedUser(userName, password);
@@ -207,8 +304,8 @@ public class login extends JFrame {
 						}
 
 						if (response.equals("true")) {
-							new AddDevice().setVisible(true);
 							frame.dispose();
+							new AddDevice().setVisible(true);
 						} else if (response.equals("null")) {
 							errorMsg("Please check internet connection.");
 						} else if (response.equals("error_not_active")) {
@@ -272,18 +369,18 @@ public class login extends JFrame {
 	}
 
 	public static void saveUserID(int userID) throws IOException {
-		File addDeviceFile = new File("configfile.txt");
+		File addDeviceFile = new File(filePath);
 		BufferedReader brTest = new BufferedReader(new FileReader(addDeviceFile));
 		String[] arr = brTest.readLine().split(" , ");
 
-		try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("configfile.txt", false)))) {
+		try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(filePath, false)))) {
 			out.println(arr[0] + " , " + userID + " , " + arr[2]);
 		} catch (IOException e) {
 		}
 	}
 
 	public static String[] readConfigFile() throws IOException {
-		File addDeviceFile = new File("configfile.txt");
+		File addDeviceFile = new File(filePath);
 		BufferedReader brTest = new BufferedReader(new FileReader(addDeviceFile));
 		String[] arr = brTest.readLine().split(" , ");
 		return arr;
