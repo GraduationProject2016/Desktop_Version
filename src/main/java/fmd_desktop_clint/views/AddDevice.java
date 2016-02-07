@@ -12,13 +12,14 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.InetAddress;
+import java.net.MalformedURLException;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.net.URL;
 import java.net.UnknownHostException;
 
-import javax.swing.ButtonGroup;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -27,10 +28,8 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
-import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JTextField;
 
-import org.eclipse.persistence.logging.LogFormatter;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -38,6 +37,10 @@ import fmd_desktop_clint.util.CommonUtil;
 import fmd_desktop_clint.util.WebServiceConnector;
 
 public class AddDevice extends JFrame {
+
+	private final static String filePath = System.getenv("APPDATA") + "\\Find My Device\\configfile.txt";
+	private final static String logFile = System.getenv("APPDATA") + "\\Find My Device\\log.txt";
+
 	public AddDevice() {
 		super("Find My Device | Add  Device");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -46,6 +49,11 @@ public class AddDevice extends JFrame {
 		setBounds(250, 115, 800, 550);
 		JPanel panel = new JPanel();
 		add(panel);
+
+		URL url = getClass().getResource("/resources/logo.png");
+		ImageIcon icon = new ImageIcon(url);
+		setIconImage(icon.getImage());
+
 		try {
 			if (CommonUtil.isAddedDevice()) {
 				placeMessage(panel);
@@ -56,61 +64,87 @@ public class AddDevice extends JFrame {
 			e.printStackTrace();
 		}
 		setVisible(true);
-		// Creates a menubar for a JFrame
-				JMenuBar menuBar = new JMenuBar();
 
-				// Add the menubar to the frame
-				setJMenuBar(menuBar);
+		JMenuBar menuBar = new JMenuBar();
+		setJMenuBar(menuBar);
+		// Define and add two drop down menu to the menubar
+		JMenu web = new JMenu("Web");
+		JMenu helpMenu = new JMenu("Help");
+		JMenu aboutMenu = new JMenu("about");
+		JMenu dataMenu = new JMenu("Data");
+		JMenu serverMenu = new JMenu("Server");
+		JMenu logoutMenu = new JMenu("logout");
 
-				// Define and add two drop down menu to the menubar
-				JMenu fileMenu = new JMenu("File");
-				JMenu editMenu = new JMenu("Edit");
-				JMenu helpMenu = new JMenu("Help");
-				JMenu aboutMenu = new JMenu("about");
-				menuBar.add(fileMenu);
-				menuBar.add(editMenu);
-				menuBar.add(helpMenu);
-				menuBar.add(aboutMenu);
+		menuBar.add(web);
+		menuBar.add(helpMenu);
+		menuBar.add(aboutMenu);
+		menuBar.add(dataMenu);
+		menuBar.add(serverMenu);
+		menuBar.add(logoutMenu);
 
-				// Create and add simple menu item to one of the drop down menu
-				JMenuItem newAction = new JMenuItem("New");
-				JMenuItem openAction = new JMenuItem("Open");
-				JMenuItem exitAction = new JMenuItem("Exit");
-				JMenuItem cutAction = new JMenuItem("Cut");
-				JMenuItem copyAction = new JMenuItem("Copy");
-				JMenuItem pasteAction = new JMenuItem("Paste");
+		// Create and add simple menu item to one of the drop down menu
+		JMenuItem openAction = new JMenuItem("Open");
+		JMenuItem exitAction = new JMenuItem("Exit");
+		JMenuItem logoutAction = new JMenuItem("logout");
+		JMenuItem logsAction = new JMenuItem("show logs");
+		JMenuItem connectAction = new JMenuItem("connect");
 
-				// Create and add CheckButton as a menu item to one of the drop down
-				// menu
-				JCheckBoxMenuItem checkAction = new JCheckBoxMenuItem("Check Action");
-				// Create and add Radio Buttons as simple menu items to one of the drop
-				// down menu
-				JRadioButtonMenuItem radioAction1 = new JRadioButtonMenuItem("Radio Button1");
-				JRadioButtonMenuItem radioAction2 = new JRadioButtonMenuItem("Radio Button2");
-				// Create a ButtonGroup and add both radio Button to it. Only one radio
-				// button in a ButtonGroup can be selected at a time.
-				ButtonGroup bg = new ButtonGroup();
-				bg.add(radioAction1);
-				bg.add(radioAction2);
-				fileMenu.add(newAction);
-				fileMenu.add(openAction);
-				fileMenu.add(checkAction);
-				fileMenu.addSeparator();
-				fileMenu.add(exitAction);
-				editMenu.add(cutAction);
-				editMenu.add(copyAction);
-				editMenu.add(pasteAction);
-				editMenu.addSeparator();
-				editMenu.add(radioAction1);
-				editMenu.add(radioAction2);
-				// Add a listener to the New menu item. actionPerformed() method will
-				// invoked, if user triggred this menu item
-				newAction.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent arg0) {
-						System.out.println("You have clicked on the new action");
+		web.add(openAction);
+		web.addSeparator();
+		web.add(exitAction);
+		logoutMenu.add(logoutAction);
+		dataMenu.add(logsAction);
+		serverMenu.add(connectAction);
+
+		exitAction.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				System.exit(0);
+			}
+		});
+		connectAction.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				dispose();
+				new ConnectToServer().setVisible(true);
+			}
+		});
+		logsAction.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				try {
+					if ((new File(logFile)).exists()) {
+
+						Process p = Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler " + logFile);
+						p.waitFor();
+
 					}
-				});
-				
+				} catch (Exception ex) {
+					ex.printStackTrace();
+				}
+			}
+		});
+		logoutAction.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				try {
+					logout();
+					new login();
+					dispose();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		});
+		openAction.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				try {
+					String url = "http://localhost:8080/fmd/";
+					java.awt.Desktop.getDesktop().browse(java.net.URI.create(url));
+				} catch (MalformedURLException e) {
+
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		});
 
 	}
 
@@ -127,32 +161,40 @@ public class AddDevice extends JFrame {
 
 	private void placeComponents(JPanel panel) {
 		panel.setLayout(null);
+
+		JLabel message = new JLabel("Register Your Device to use our service.");
+		message.setBounds(150, 20, 750, 100);
+		message.setFont(new Font("Time New Roman", Font.ITALIC, 30));
+		message.setOpaque(true);
+		message.setForeground(Color.BLACK);
+		panel.add(message);
+
 		JLabel deviceNameLabel = new JLabel("Device Name");
-		deviceNameLabel.setBounds(250, 100, 80, 25);
+		deviceNameLabel.setBounds(250, 140, 80, 25);
 		panel.add(deviceNameLabel);
 
 		final JTextField deviceNameInput = new JTextField(20);
-		deviceNameInput.setBounds(350, 100, 160, 25);
+		deviceNameInput.setBounds(350, 140, 160, 25);
 		panel.add(deviceNameInput);
 
 		JLabel passwordLabel = new JLabel("Password");
-		passwordLabel.setBounds(250, 140, 80, 25);
+		passwordLabel.setBounds(250, 180, 80, 25);
 		panel.add(passwordLabel);
 
 		final JPasswordField passwordText = new JPasswordField(20);
-		passwordText.setBounds(350, 140, 160, 25);
+		passwordText.setBounds(350, 180, 160, 25);
 		panel.add(passwordText);
 
 		JLabel RepasswordLabel = new JLabel("RePassword");
-		RepasswordLabel.setBounds(250, 180, 80, 25);
+		RepasswordLabel.setBounds(250, 220, 80, 25);
 		panel.add(RepasswordLabel);
 
 		final JPasswordField RepasswordText = new JPasswordField(20);
-		RepasswordText.setBounds(350, 180, 160, 25);
+		RepasswordText.setBounds(350, 220, 160, 25);
 		panel.add(RepasswordText);
 
-		JButton addDevice = new JButton("Add");
-		addDevice.setBounds(340, 250, 80, 25);
+		JButton addDevice = new JButton("Add device");
+		addDevice.setBounds(350, 260, 160, 25);
 		panel.add(addDevice);
 		addDevice.addActionListener(new ActionListener() {
 
@@ -255,37 +297,36 @@ public class AddDevice extends JFrame {
 	}
 
 	public static void saveDeviceID(int deviceID) throws IOException {
-		File addDeviceFile = new File("configfile.txt");
+		File addDeviceFile = new File(filePath);
 		BufferedReader brTest = new BufferedReader(new FileReader(addDeviceFile));
 		String[] arr = brTest.readLine().split(" , ");
 
-		try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("configfile.txt", false)))) {
+		try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(filePath, false)))) {
 			out.println(arr[0] + " , " + arr[1] + " , " + deviceID);
 		} catch (IOException e) {
 		}
 	}
 
 	public static void markDeviceAsAdded() throws IOException {
-		File addDeviceFile = new File("configfile.txt");
+		File addDeviceFile = new File(filePath);
 		BufferedReader brTest = new BufferedReader(new FileReader(addDeviceFile));
 		String[] arr = brTest.readLine().split(" , ");
 
-		try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("configfile.txt", false)))) {
+		try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(filePath, false)))) {
 			out.println(1 + " , " + arr[1] + " , " + arr[2]);
 		} catch (IOException e) {
 		}
 	}
 
 	public static void logout() throws IOException {
-		File addDeviceFile = new File("configfile.txt");
+		File addDeviceFile = new File(filePath);
 		BufferedReader brTest = new BufferedReader(new FileReader(addDeviceFile));
 		String[] arr = brTest.readLine().split(" , ");
 
-		try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("configfile.txt", false)))) {
+		try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(filePath, false)))) {
 			out.println(arr[0] + " , " + 0 + " , " + arr[2]);
 		} catch (IOException e) {
 		}
 
-		new login().setVisible(true);
 	}
 }

@@ -7,22 +7,24 @@ import java.io.IOException;
 
 public class CommonUtil {
 
+	private final static String filePath = System.getenv("APPDATA") + "\\Find My Device\\configfile.txt"; 
+
 	public static boolean isAddedDevice() throws IOException {
-		File addDeviceFile = new File("configfile.txt");
+		File addDeviceFile = new File(filePath);
 		BufferedReader brTest = new BufferedReader(new FileReader(addDeviceFile));
 		String[] arr = brTest.readLine().split(" , ");
 		return arr[0].equals("1");
 	}
 
 	public static int getUserID() throws IOException {
-		File addDeviceFile = new File("configfile.txt");
+		File addDeviceFile = new File(filePath);
 		BufferedReader brTest = new BufferedReader(new FileReader(addDeviceFile));
 		String[] arr = brTest.readLine().split(" , ");
 		return Integer.valueOf(arr[1]);
 	}
 
 	public static int getDeviceID() throws IOException {
-		File addDeviceFile = new File("configfile.txt");
+		File addDeviceFile = new File(filePath);
 		BufferedReader brTest = new BufferedReader(new FileReader(addDeviceFile));
 		String[] arr = brTest.readLine().split(" , ");
 		return Integer.valueOf(arr[2]);

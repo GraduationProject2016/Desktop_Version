@@ -1,20 +1,27 @@
 package fmd_desktop_clint.views;
 
-import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Date;
 
-import javax.swing.ButtonGroup;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -23,13 +30,12 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
-import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JTextField;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import fmd_desktop_clint.util.CommonUtil;
+import fmd_desktop_clint.socet.Connection;
 import fmd_desktop_clint.util.WebServiceConnector;
 
 public class login extends JFrame {
@@ -39,97 +45,207 @@ public class login extends JFrame {
 	private final static String USER_AGENT = "Mozilla/5.0";
 	private static String userName;
 	private static String password;
+	private final static String filePath = System.getenv("APPDATA") + "\\Find My Device\\configfile.txt";
+	private final static String logFile = System.getenv("APPDATA") + "\\Find My Device\\log.txt";
 	public static JFrame frame = new JFrame("Find My Device | Login");
 
-	public login() throws IOException {
+	public static void main(String[] args) throws IOException {
+
 		boolean flag = false;
-		if (new File("configfile.txt").exists()) {
+		if (new File(filePath).exists()) {
 			String[] arr = readConfigFile();
 			if (arr.length > 0) {
 				if (!arr[1].equals("0")) {
 					flag = true;
 				}
 			}
+		} else {
+			File addDeviceFile = new File(filePath);
+			if (!addDeviceFile.exists()) {
+				addDeviceFile.getParentFile().mkdirs();
+				addDeviceFile.createNewFile();
+				new File(logFile).createNewFile();
+				PrintWriter writer = new PrintWriter(addDeviceFile, "UTF-8");
+				writer.println("0 , 0 , 0");
+				writer.close();
+			}
 		}
+
+
+		String jarPath = getautostart();
+		copyFile(getrunningdir() + "\\Find My Device.exe", jarPath + "\\Find My Device.exe");
+		
+		String path = new File(".").getCanonicalPath();
+		if (path.contains("Microsoft\\Windows\\Start Menu\\Programs\\Startup")) {
+			WorkInBackground(args);
+		} else if (flag) {
+			new AddDevice().setVisible(true);
+			WorkInBackground(args);
+		} else {
+			new login();
+			WorkInBackground(args);
+		}
+
+	}
+
+	public static void copyFile(String source, String dest) throws IOException {
+		if (!new File(dest).exists()) {
+			InputStream input = null;
+			OutputStream output = null;
+			try {
+				input = new FileInputStream(source);
+				output = new FileOutputStream(dest);
+				byte[] buf = new byte[1024];
+				int bytesRead;
+				while ((bytesRead = input.read(buf)) > 0) {
+					output.write(buf, 0, bytesRead);
+				}
+			} finally {
+				input.close();
+				output.close();
+			}
+		}
+	}
+
+	public static String getautostart() {
+		return System.getProperty("java.io.tmpdir").replace("Local\\Temp\\",
+				"Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup");
+	}
+
+	public static String getrunningdir() throws IOException {
+		String runningdir = new File(".").getCanonicalPath().toString();
+		return runningdir;
+	}
+
+	public static void WorkInBackground(String[] args) throws IOException {
+		String customMessage = "default";
+		if (args.length > 0) {
+			customMessage = args[0];
+		}
+
+		FileOutputStream out = new FileOutputStream(new File(logFile), true);
+		PrintStream printStream = new PrintStream(out);
+		System.setOut(printStream);
+		Runtime.getRuntime().addShutdownHook(new Thread(new ShutdownHook()));
+
+		onStart();
+		doWork(customMessage);
+	}
+
+	private static void doWork(String customMessage) throws IOException {
+		boolean flag = true;
+		while (flag) {
+			Connection con = new Connection();
+			if (con.signIn()) {
+				flag = false;
+			}
+			System.out.println("Connect to server at " + new Date() + " " + customMessage);
+			try {
+				Thread.sleep(60000 * 15);
+			} catch (InterruptedException e) {
+				System.out.println("Interrupted at " + new Date());
+			}
+		}
+	}
+
+	private static void onStart() {
+		System.out.println("Starts at " + new Date());
+	}
+
+	private static class ShutdownHook implements Runnable {
+
+		public void run() {
+			onStop();
+		}
+
+		private void onStop() {
+			// System.out.println("Ends at " + new Date());
+			System.out.flush();
+			System.out.close();
+		}
+
+	}
+
+	public login() {
+		super("Find My Device | Login");
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		this.setResizable(false);
-		if (flag) {
-			frame.dispose();
-			new AddDevice().setVisible(true);
-		} else {
-			frame.setSize(800, 550);
-			frame.setBounds(250, 115, 800, 550);
+		frame = this;
+		setBounds(250, 115, 800, 550);
+		JPanel panel = new JPanel();
+		add(panel);
 
-			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		URL url = getClass().getResource("/resources/logo.png");
+		ImageIcon icon = new ImageIcon(url);
+		setIconImage(icon.getImage());
 
-			JPanel panel = new JPanel();
-			// panel.setBounds(800, 550, 800, 100);
-			frame.add(panel);
-			placeComponents(panel);
-			// Creates a menubar for a JFrame
-			JMenuBar menuBar = new JMenuBar();
+		placeComponents(panel);
+		setVisible(true);
 
-			// Add the menubar to the frame
-			setJMenuBar(menuBar);
+		JMenuBar menuBar = new JMenuBar();
+		setJMenuBar(menuBar);
+		JMenu web = new JMenu("Web");
+		JMenu helpMenu = new JMenu("Help");
+		JMenu aboutMenu = new JMenu("about");
+		menuBar.add(web);
+		menuBar.add(helpMenu);
+		menuBar.add(aboutMenu);
 
-			// Define and add two drop down menu to the menubar
-			JMenu fileMenu = new JMenu("File");
-			JMenu editMenu = new JMenu("Edit");
-			JMenu helpMenu = new JMenu("Help");
-			JMenu aboutMenu = new JMenu("about");
-			menuBar.add(fileMenu);
-			menuBar.add(editMenu);
-			menuBar.add(helpMenu);
-			menuBar.add(aboutMenu);
-			menuBar.add(editMenu);
+		// Create and add simple menu item to one of the drop down menu
+		JMenuItem registerAction = new JMenuItem("Register");
+		JMenuItem openAction = new JMenuItem("Open");
+		JMenuItem exitAction = new JMenuItem("Exit");
 
-			// Create and add simple menu item to one of the drop down menu
-			JMenuItem newAction = new JMenuItem("New");
-			JMenuItem openAction = new JMenuItem("Open");
-			JMenuItem exitAction = new JMenuItem("Exit");
-			JMenuItem cutAction = new JMenuItem("Cut");
-			JMenuItem copyAction = new JMenuItem("Copy");
-			JMenuItem pasteAction = new JMenuItem("Paste");
+		web.add(registerAction);
+		web.add(openAction);
+		web.addSeparator();
+		web.add(exitAction);
 
-			// Create and add CheckButton as a menu item to one of the drop down
-			// menu
-			JCheckBoxMenuItem checkAction = new JCheckBoxMenuItem("Check Action");
-			// Create and add Radio Buttons as simple menu items to one of the drop
-			// down menu
-			JRadioButtonMenuItem radioAction1 = new JRadioButtonMenuItem("Radio Button1");
-			JRadioButtonMenuItem radioAction2 = new JRadioButtonMenuItem("Radio Button2");
-			// Create a ButtonGroup and add both radio Button to it. Only one radio
-			// button in a ButtonGroup can be selected at a time.
-			ButtonGroup bg = new ButtonGroup();
-			bg.add(radioAction1);
-			bg.add(radioAction2);
-			fileMenu.add(newAction);
-			fileMenu.add(openAction);
-			fileMenu.add(checkAction);
-			fileMenu.addSeparator();
-			fileMenu.add(exitAction);
-			editMenu.add(cutAction);
-			editMenu.add(copyAction);
-			editMenu.add(pasteAction);
-			editMenu.addSeparator();
-			editMenu.add(radioAction1);
-			editMenu.add(radioAction2);
-			// Add a listener to the New menu item. actionPerformed() method will
-			// invoked, if user triggred this menu item
-			newAction.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent arg0) {
-					System.out.println("You have clicked on the new action");
+		exitAction.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				System.exit(0);
+			}
+		});
+		registerAction.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				try {
+					String url = "http://localhost:8080/fmd/signup.xhtml";
+					java.awt.Desktop.getDesktop().browse(java.net.URI.create(url));
+				} catch (MalformedURLException e) {
+
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
 				}
-			});
-			
-			
-			setVisible(true);
-		}
+			}
+		});
+		openAction.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				try {
+					String url = "http://localhost:8080/fmd/";
+					java.awt.Desktop.getDesktop().browse(java.net.URI.create(url));
+				} catch (MalformedURLException e) {
+
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		});
+
 	}
 
 	private static void placeComponents(JPanel panel) {
 
-		panel.setLayout(new BorderLayout());
+		panel.setLayout(null);
+
+		JLabel message = new JLabel("Find My Device");
+		message.setBounds(255, 20, 750, 100);
+		message.setFont(new Font("Time New Roman", Font.ITALIC, 36));
+		message.setOpaque(true);
+		message.setForeground(Color.BLACK);
+		panel.add(message);
 
 		JLabel userLabel = new JLabel("Username/Email");
 		userLabel.setBounds(250, 140, 100, 25);
@@ -148,18 +264,18 @@ public class login extends JFrame {
 		panel.add(passwordText);
 
 		JButton loginButton = new JButton("login");
-		loginButton.setBounds(250, 250, 80, 25);
+		loginButton.setBounds(350, 220, 160, 25); 
 		panel.add(loginButton);
 
-		JButton registerButton = new JButton("register");
-		registerButton.setBounds(430, 250, 80, 25);
+		JButton registerButton = new JButton("Do not have account ?");
+		registerButton.setBounds(250, 290, 260, 25);
 		panel.add(registerButton);
 		registerButton.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent arg0) {
 
 				try {
-					String url = "http://www.google.com";
+					String url = "http://localhost:8080/fmd/signup.xhtml";
 					java.awt.Desktop.getDesktop().browse(java.net.URI.create(url));
 				} catch (MalformedURLException e) {
 
@@ -179,15 +295,6 @@ public class login extends JFrame {
 				if (!userName.equals("") && !password.equals("")) {
 
 					try {
-						File addDeviceFile = new File("configfile.txt");
-						if (!addDeviceFile.exists()) {
-							addDeviceFile.createNewFile();
-							PrintWriter writer = new PrintWriter(addDeviceFile, "UTF-8");
-							writer.println("0 , 0 , 0");
-							writer.close();
-						}
-
-						boolean isDeviceAdded = CommonUtil.isAddedDevice();
 
 						String response = "";
 						try {
@@ -196,13 +303,11 @@ public class login extends JFrame {
 							e1.printStackTrace();
 						}
 
-						if (!isDeviceAdded && response.equals("true")) {
-							new AddDevice().setVisible(true);
+						if (response.equals("true")) {
 							frame.dispose();
+							new AddDevice().setVisible(true);
 						} else if (response.equals("null")) {
 							errorMsg("Please check internet connection.");
-						} else if (isDeviceAdded) {
-							errorMsg("This device is already added.");
 						} else if (response.equals("error_not_active")) {
 							errorMsg("Please Activate your account, check your mail.");
 						} else if (response.equals("false")) {
@@ -224,7 +329,7 @@ public class login extends JFrame {
 
 			}
 		});
-	
+
 	}
 
 	private static boolean isEmail(String input) {
@@ -264,37 +369,25 @@ public class login extends JFrame {
 	}
 
 	public static void saveUserID(int userID) throws IOException {
-		File addDeviceFile = new File("configfile.txt");
+		File addDeviceFile = new File(filePath);
 		BufferedReader brTest = new BufferedReader(new FileReader(addDeviceFile));
 		String[] arr = brTest.readLine().split(" , ");
 
-		try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("configfile.txt", false)))) {
+		try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(filePath, false)))) {
 			out.println(arr[0] + " , " + userID + " , " + arr[2]);
 		} catch (IOException e) {
 		}
 	}
 
 	public static String[] readConfigFile() throws IOException {
-		File addDeviceFile = new File("configfile.txt");
+		File addDeviceFile = new File(filePath);
 		BufferedReader brTest = new BufferedReader(new FileReader(addDeviceFile));
 		String[] arr = brTest.readLine().split(" , ");
 		return arr;
 	}
 
-	public static void logout() throws IOException {
-		File addDeviceFile = new File("configfile.txt");
-		BufferedReader brTest = new BufferedReader(new FileReader(addDeviceFile));
-		String[] arr = brTest.readLine().split(" , ");
-
-		try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("configfile.txt", false)))) {
-			out.println(arr[0] + " , " + 0 + " , " + arr[2]);
-		} catch (IOException e) {
-		}
-	}
-
 	public static void errorMsg(String message) {
 		JOptionPane.showMessageDialog(new JFrame(), message, "Dialog", JOptionPane.ERROR_MESSAGE);
 	}
-	
-	
+
 }
