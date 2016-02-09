@@ -14,11 +14,12 @@ public class Main {
 
 			MessageDto msg = new MessageDto(MessageDto.CLIENT_TO_SERVER);
 			msg.setDeviceId(1);
-			msg.setUserId(2);
+			msg.setUserId(1);
 			msg.setContent("mohame265");
 			client.send(JsonHandler.getMessageDtoJson(msg));
 			//System.out.println(JsonHandler.getMessageDtoJson(msg));
 		} catch (Exception ex) {
+			ex.printStackTrace();
 		}
 
 		// String[] arr = null;// new String[] {"ahhhh" ,"ohhh"};
