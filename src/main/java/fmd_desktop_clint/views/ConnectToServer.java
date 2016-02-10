@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Date;
 
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
@@ -28,11 +27,9 @@ import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
 
 import fmd_desktop_clint.socet.Connection;
+import fmd_desktop_clint.util.Constants;
 
 public class ConnectToServer extends JFrame {
-
-	private final static String filePath = System.getenv("APPDATA") + "\\Find My Device\\configfile.txt";
-	private final static String logFile = System.getenv("APPDATA") + "\\Find My Device\\log.txt";
 
 	public ConnectToServer() {
 		super("Find My Device | Connect To Server");
@@ -86,9 +83,10 @@ public class ConnectToServer extends JFrame {
 		logsAction.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				try {
-					if ((new File(logFile)).exists()) {
+					if ((new File(Constants.LOG_FILE)).exists()) {
 
-						Process p = Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler " + logFile);
+						Process p = Runtime.getRuntime()
+								.exec("rundll32 url.dll,FileProtocolHandler " + Constants.LOG_FILE);
 						p.waitFor();
 
 					}
@@ -111,7 +109,7 @@ public class ConnectToServer extends JFrame {
 		openAction.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				try {
-					String url = "http://localhost:8080/fmd/";
+					String url = Constants.HOST_NAME + "/fmd/";
 					java.awt.Desktop.getDesktop().browse(java.net.URI.create(url));
 				} catch (MalformedURLException e) {
 
@@ -167,11 +165,11 @@ public class ConnectToServer extends JFrame {
 	}
 
 	public static void logout() throws IOException {
-		File addDeviceFile = new File(filePath);
+		File addDeviceFile = new File(Constants.FILE_PATH);
 		BufferedReader brTest = new BufferedReader(new FileReader(addDeviceFile));
 		String[] arr = brTest.readLine().split(" , ");
 
-		try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(filePath, false)))) {
+		try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(Constants.FILE_PATH, false)))) {
 			out.println(arr[0] + " , " + 0 + " , " + arr[2]);
 		} catch (IOException e) {
 		}

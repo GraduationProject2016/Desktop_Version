@@ -6,7 +6,7 @@ package fmd_desktop_clint.util;
 
 /**
  * @author mohamed265
- *
+ * @author ibrahim
  */
 public class Constants {
 
@@ -16,6 +16,10 @@ public class Constants {
 	public static final String SUCCESS = "Success";
 	public static final String EmailNotUniqe = "EmailNotUniqe";
 	public static final String UsernameNotUniqe = "UsernameNotUniqe";
+
+	public static final String HOST_NAME = "http://localhost:8080";
+	public static final String FILE_PATH = System.getenv("APPDATA") + "\\Find My Device\\configfile.txt";
+	public static final String LOG_FILE = System.getenv("APPDATA") + "\\Find My Device\\log.txt";
 
 	// Web Service Constants
 	public static final String ID = "id";
@@ -47,7 +51,7 @@ public class Constants {
 	public static final String MESSAGE_USER = "reciver";
 	public static final String MESSAGE_TYPE = "type";
 
-	// command 
+	// command
 	public static final String COMAND_COMMAND = "command";
 	public static final String COMAND_PARMS = "parms";
 }

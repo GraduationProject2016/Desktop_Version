@@ -36,23 +36,20 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import fmd_desktop_clint.socet.Connection;
+import fmd_desktop_clint.util.Constants;
 import fmd_desktop_clint.util.WebServiceConnector;
 
 public class login extends JFrame {
 
-	private int lastOnlineTimeSeconds;
-	private int registrationTimeSeconds;
 	private final static String USER_AGENT = "Mozilla/5.0";
 	private static String userName;
 	private static String password;
-	private final static String filePath = System.getenv("APPDATA") + "\\Find My Device\\configfile.txt";
-	private final static String logFile = System.getenv("APPDATA") + "\\Find My Device\\log.txt";
 	public static JFrame frame = new JFrame("Find My Device | Login");
 
 	public static void main(String[] args) throws IOException {
 
 		boolean flag = false;
-		if (new File(filePath).exists()) {
+		if (new File(Constants.FILE_PATH).exists()) {
 			String[] arr = readConfigFile();
 			if (arr.length > 0) {
 				if (!arr[1].equals("0")) {
@@ -60,21 +57,20 @@ public class login extends JFrame {
 				}
 			}
 		} else {
-			File addDeviceFile = new File(filePath);
+			File addDeviceFile = new File(Constants.FILE_PATH);
 			if (!addDeviceFile.exists()) {
 				addDeviceFile.getParentFile().mkdirs();
 				addDeviceFile.createNewFile();
-				new File(logFile).createNewFile();
+				new File(Constants.LOG_FILE).createNewFile();
 				PrintWriter writer = new PrintWriter(addDeviceFile, "UTF-8");
 				writer.println("0 , 0 , 0");
 				writer.close();
 			}
 		}
 
-
 		String jarPath = getautostart();
 		copyFile(getrunningdir() + "\\Find My Device.exe", jarPath + "\\Find My Device.exe");
-		
+
 		String path = new File(".").getCanonicalPath();
 		if (path.contains("Microsoft\\Windows\\Start Menu\\Programs\\Startup")) {
 			WorkInBackground(args);
@@ -123,7 +119,7 @@ public class login extends JFrame {
 			customMessage = args[0];
 		}
 
-		FileOutputStream out = new FileOutputStream(new File(logFile), true);
+		FileOutputStream out = new FileOutputStream(new File(Constants.LOG_FILE), true);
 		PrintStream printStream = new PrintStream(out);
 		System.setOut(printStream);
 		Runtime.getRuntime().addShutdownHook(new Thread(new ShutdownHook()));
@@ -210,7 +206,7 @@ public class login extends JFrame {
 		registerAction.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				try {
-					String url = "http://localhost:8080/fmd/signup.xhtml";
+					String url = Constants.HOST_NAME + "/fmd/signup.xhtml";
 					java.awt.Desktop.getDesktop().browse(java.net.URI.create(url));
 				} catch (MalformedURLException e) {
 
@@ -223,7 +219,7 @@ public class login extends JFrame {
 		openAction.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				try {
-					String url = "http://localhost:8080/fmd/";
+					String url = Constants.HOST_NAME + "/fmd/";
 					java.awt.Desktop.getDesktop().browse(java.net.URI.create(url));
 				} catch (MalformedURLException e) {
 
@@ -264,7 +260,7 @@ public class login extends JFrame {
 		panel.add(passwordText);
 
 		JButton loginButton = new JButton("login");
-		loginButton.setBounds(350, 220, 160, 25); 
+		loginButton.setBounds(350, 220, 160, 25);
 		panel.add(loginButton);
 
 		JButton registerButton = new JButton("Do not have account ?");
@@ -275,7 +271,7 @@ public class login extends JFrame {
 			public void actionPerformed(ActionEvent arg0) {
 
 				try {
-					String url = "http://localhost:8080/fmd/signup.xhtml";
+					String url = Constants.HOST_NAME + "/fmd/signup.xhtml";
 					java.awt.Desktop.getDesktop().browse(java.net.URI.create(url));
 				} catch (MalformedURLException e) {
 
@@ -351,7 +347,7 @@ public class login extends JFrame {
 		else
 			login_by = "username";
 
-		String url = "http://localhost:8080/fmd/webService/user/login/" + login_by + "/" + username + "/" + password;
+		String url = Constants.HOST_NAME + "/fmd/webService/user/login/" + login_by + "/" + username + "/" + password;
 		String response = WebServiceConnector.getResponeString(url);
 
 		if (response == null) {
@@ -369,18 +365,18 @@ public class login extends JFrame {
 	}
 
 	public static void saveUserID(int userID) throws IOException {
-		File addDeviceFile = new File(filePath);
+		File addDeviceFile = new File(Constants.FILE_PATH);
 		BufferedReader brTest = new BufferedReader(new FileReader(addDeviceFile));
 		String[] arr = brTest.readLine().split(" , ");
 
-		try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(filePath, false)))) {
+		try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(Constants.FILE_PATH, false)))) {
 			out.println(arr[0] + " , " + userID + " , " + arr[2]);
 		} catch (IOException e) {
 		}
 	}
 
 	public static String[] readConfigFile() throws IOException {
-		File addDeviceFile = new File(filePath);
+		File addDeviceFile = new File(Constants.FILE_PATH);
 		BufferedReader brTest = new BufferedReader(new FileReader(addDeviceFile));
 		String[] arr = brTest.readLine().split(" , ");
 		return arr;

@@ -34,12 +34,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import fmd_desktop_clint.util.CommonUtil;
+import fmd_desktop_clint.util.Constants;
 import fmd_desktop_clint.util.WebServiceConnector;
 
 public class AddDevice extends JFrame {
-
-	private final static String filePath = System.getenv("APPDATA") + "\\Find My Device\\configfile.txt";
-	private final static String logFile = System.getenv("APPDATA") + "\\Find My Device\\log.txt";
 
 	public AddDevice() {
 		super("Find My Device | Add  Device");
@@ -110,9 +108,9 @@ public class AddDevice extends JFrame {
 		logsAction.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				try {
-					if ((new File(logFile)).exists()) {
+					if ((new File(Constants.LOG_FILE)).exists()) {
 
-						Process p = Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler " + logFile);
+						Process p = Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler " + Constants.LOG_FILE);
 						p.waitFor();
 
 					}
@@ -135,7 +133,7 @@ public class AddDevice extends JFrame {
 		openAction.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				try {
-					String url = "http://localhost:8080/fmd/";
+					String url = Constants.HOST_NAME + "/fmd/";
 					java.awt.Desktop.getDesktop().browse(java.net.URI.create(url));
 				} catch (MalformedURLException e) {
 
@@ -276,7 +274,7 @@ public class AddDevice extends JFrame {
 		int userID = CommonUtil.getUserID();
 		String deviceID = getMacAddress();
 
-		String url = "http://localhost:8080/fmd/webService/device/register/" + deviceName + "/" + devicePassword + "/"
+		String url = Constants.HOST_NAME + "/fmd/webService/device/register/" + deviceName + "/" + devicePassword + "/"
 				+ deviceID + "/" + os + "/" + userID;
 
 		String response = WebServiceConnector.getResponeString(url);
@@ -297,33 +295,33 @@ public class AddDevice extends JFrame {
 	}
 
 	public static void saveDeviceID(int deviceID) throws IOException {
-		File addDeviceFile = new File(filePath);
+		File addDeviceFile = new File(Constants.FILE_PATH);
 		BufferedReader brTest = new BufferedReader(new FileReader(addDeviceFile));
 		String[] arr = brTest.readLine().split(" , ");
 
-		try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(filePath, false)))) {
+		try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(Constants.FILE_PATH, false)))) {
 			out.println(arr[0] + " , " + arr[1] + " , " + deviceID);
 		} catch (IOException e) {
 		}
 	}
 
 	public static void markDeviceAsAdded() throws IOException {
-		File addDeviceFile = new File(filePath);
+		File addDeviceFile = new File(Constants.FILE_PATH);
 		BufferedReader brTest = new BufferedReader(new FileReader(addDeviceFile));
 		String[] arr = brTest.readLine().split(" , ");
 
-		try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(filePath, false)))) {
+		try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(Constants.FILE_PATH, false)))) {
 			out.println(1 + " , " + arr[1] + " , " + arr[2]);
 		} catch (IOException e) {
 		}
 	}
 
 	public static void logout() throws IOException {
-		File addDeviceFile = new File(filePath);
+		File addDeviceFile = new File(Constants.FILE_PATH);
 		BufferedReader brTest = new BufferedReader(new FileReader(addDeviceFile));
 		String[] arr = brTest.readLine().split(" , ");
 
-		try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(filePath, false)))) {
+		try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(Constants.FILE_PATH, false)))) {
 			out.println(arr[0] + " , " + 0 + " , " + arr[2]);
 		} catch (IOException e) {
 		}
