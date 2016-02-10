@@ -21,6 +21,7 @@ public class Main {
 			//client.send(JsonHandler.getMessageDtoJson(msg));
 			//System.out.println(JsonHandler.getMessageDtoJson(msg));
 		} catch (Exception ex) {
+			ex.printStackTrace();
 		}
 
 		// String[] arr = null;// new String[] {"ahhhh" ,"ohhh"};
