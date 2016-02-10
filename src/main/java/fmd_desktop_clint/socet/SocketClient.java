@@ -50,6 +50,7 @@ public class SocketClient implements Runnable {
 				System.out.println("Incoming : " + msg.toString());
 
 				MessageDto result = new MessageDto(Constants.CLIENT_TO_SERVER);
+				result.setUserId(msg.getUserId());
 				String stringCommand = command.getCommand();
 				String[] parms = command.getParms();
 				if (stringCommand.equals(CommandConstant.computerDesktop)) {
