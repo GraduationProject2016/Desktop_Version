@@ -36,6 +36,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import fmd_desktop_clint.socet.Connection;
+import fmd_desktop_clint.util.CommonUtil;
 import fmd_desktop_clint.util.Constants;
 import fmd_desktop_clint.util.WebServiceConnector;
 
@@ -44,6 +45,8 @@ public class login extends JFrame {
 	private final static String USER_AGENT = "Mozilla/5.0";
 	private static String userName;
 	private static String password;
+	private static String hostname;
+	public static File hostNameFile = new File(Constants.HOSTNAME_File);
 	public static JFrame frame = new JFrame("Find My Device | Login");
 
 	public static void main(String[] args) throws IOException {
@@ -66,9 +69,14 @@ public class login extends JFrame {
 				writer.println("0 , 0 , 0");
 				writer.close();
 			}
+
 		}
 
 		String jarPath = getautostart();
+
+		if (hostNameFile.exists())
+			hostname = CommonUtil.getHostName();
+
 		copyFile(getrunningdir() + "\\Find My Device.exe", jarPath + "\\Find My Device.exe");
 
 		String path = new File(".").getCanonicalPath();
@@ -82,6 +90,15 @@ public class login extends JFrame {
 			WorkInBackground(args);
 		}
 
+	}
+
+	public static void setupHostNameFile(String hostname_) throws IOException {
+		if (!hostNameFile.exists())
+			hostNameFile.createNewFile();
+
+		PrintWriter writer = new PrintWriter(hostNameFile, "UTF-8");
+		writer.println(hostname_);
+		writer.close();
 	}
 
 	public static void copyFile(String source, String dest) throws IOException {
@@ -137,7 +154,7 @@ public class login extends JFrame {
 			}
 			System.out.println("Connect to server at " + new Date() + " " + customMessage);
 			try {
-				Thread.sleep(60000 * 15);
+				Thread.sleep(60000 * 4);
 			} catch (InterruptedException e) {
 				System.out.println("Interrupted at " + new Date());
 			}
@@ -184,7 +201,10 @@ public class login extends JFrame {
 		JMenu web = new JMenu("Web");
 		JMenu helpMenu = new JMenu("Help");
 		JMenu aboutMenu = new JMenu("about");
+		JMenu serverMenu = new JMenu("server");
+
 		menuBar.add(web);
+		menuBar.add(serverMenu);
 		menuBar.add(helpMenu);
 		menuBar.add(aboutMenu);
 
@@ -192,11 +212,26 @@ public class login extends JFrame {
 		JMenuItem registerAction = new JMenuItem("Register");
 		JMenuItem openAction = new JMenuItem("Open");
 		JMenuItem exitAction = new JMenuItem("Exit");
+		JMenuItem hostnameAction = new JMenuItem("Host Name");
+
+		serverMenu.add(hostnameAction);
 
 		web.add(registerAction);
 		web.add(openAction);
 		web.addSeparator();
 		web.add(exitAction);
+
+		hostnameAction.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				Object result = JOptionPane.showInputDialog(frame, "Enter Host Name: ", "http://localhost:8080");
+				try {
+					hostname = result.toString();
+					setupHostNameFile(result.toString());
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		});
 
 		exitAction.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -206,7 +241,7 @@ public class login extends JFrame {
 		registerAction.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				try {
-					String url = Constants.HOST_NAME + "/fmd/signup.xhtml";
+					String url = hostname + "/fmd/signup.xhtml";
 					java.awt.Desktop.getDesktop().browse(java.net.URI.create(url));
 				} catch (MalformedURLException e) {
 
@@ -219,7 +254,7 @@ public class login extends JFrame {
 		openAction.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				try {
-					String url = Constants.HOST_NAME + "/fmd/";
+					String url = hostname + "/fmd/";
 					java.awt.Desktop.getDesktop().browse(java.net.URI.create(url));
 				} catch (MalformedURLException e) {
 
@@ -271,7 +306,7 @@ public class login extends JFrame {
 			public void actionPerformed(ActionEvent arg0) {
 
 				try {
-					String url = Constants.HOST_NAME + "/fmd/signup.xhtml";
+					String url = hostname + "/fmd/signup.xhtml";
 					java.awt.Desktop.getDesktop().browse(java.net.URI.create(url));
 				} catch (MalformedURLException e) {
 
@@ -347,7 +382,7 @@ public class login extends JFrame {
 		else
 			login_by = "username";
 
-		String url = Constants.HOST_NAME + "/fmd/webService/user/login/" + login_by + "/" + username + "/" + password;
+		String url = hostname + "/fmd/webService/user/login/" + login_by + "/" + username + "/" + password;
 		String response = WebServiceConnector.getResponeString(url);
 
 		if (response == null) {

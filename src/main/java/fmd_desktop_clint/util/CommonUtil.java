@@ -41,4 +41,14 @@ public class CommonUtil {
 		} catch (IOException e) {
 		}
 	}
+
+	public static String getHostName() throws IOException {
+		File hostNameFile = new File(Constants.HOSTNAME_File);
+		String arr = null;
+		if (hostNameFile.exists()) {
+			BufferedReader brTest = new BufferedReader(new FileReader(hostNameFile));
+			arr = brTest.readLine();
+		}
+		return arr;
+	}
 }

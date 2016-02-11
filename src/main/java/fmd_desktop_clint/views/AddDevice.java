@@ -39,6 +39,8 @@ import fmd_desktop_clint.util.WebServiceConnector;
 
 public class AddDevice extends JFrame {
 
+	private static String hostname;
+
 	public AddDevice() {
 		super("Find My Device | Add  Device");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -110,7 +112,8 @@ public class AddDevice extends JFrame {
 				try {
 					if ((new File(Constants.LOG_FILE)).exists()) {
 
-						Process p = Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler " + Constants.LOG_FILE);
+						Process p = Runtime.getRuntime()
+								.exec("rundll32 url.dll,FileProtocolHandler " + Constants.LOG_FILE);
 						p.waitFor();
 
 					}
@@ -133,7 +136,7 @@ public class AddDevice extends JFrame {
 		openAction.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				try {
-					String url = Constants.HOST_NAME + "/fmd/";
+					String url = hostname + "/fmd/";
 					java.awt.Desktop.getDesktop().browse(java.net.URI.create(url));
 				} catch (MalformedURLException e) {
 
@@ -144,6 +147,11 @@ public class AddDevice extends JFrame {
 			}
 		});
 
+		try {
+			hostname = CommonUtil.getHostName();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private void placeMessage(JPanel panel) {
@@ -256,7 +264,7 @@ public class AddDevice extends JFrame {
 		try {
 			ip = InetAddress.getLocalHost();
 			NetworkInterface network = NetworkInterface.getByInetAddress(ip);
-			System.out.println(network.getHardwareAddress().toString());
+			//System.out.println(network.getHardwareAddress().toString());
 			byte[] mac = network.getHardwareAddress();
 			for (int i = 0; i < mac.length; i++)
 				sb.append(String.format("%02X%s", mac[i], (i < mac.length - 1) ? "-" : ""));
@@ -274,7 +282,7 @@ public class AddDevice extends JFrame {
 		int userID = CommonUtil.getUserID();
 		String deviceID = getMacAddress();
 
-		String url = Constants.HOST_NAME + "/fmd/webService/device/register/" + deviceName + "/" + devicePassword + "/"
+		String url = hostname + "/fmd/webService/device/register/" + deviceName + "/" + devicePassword + "/"
 				+ deviceID + "/" + os + "/" + userID;
 
 		String response = WebServiceConnector.getResponeString(url);

@@ -27,9 +27,12 @@ import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
 
 import fmd_desktop_clint.socet.Connection;
+import fmd_desktop_clint.util.CommonUtil;
 import fmd_desktop_clint.util.Constants;
 
 public class ConnectToServer extends JFrame {
+
+	private static String hostname;
 
 	public ConnectToServer() {
 		super("Find My Device | Connect To Server");
@@ -109,7 +112,7 @@ public class ConnectToServer extends JFrame {
 		openAction.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				try {
-					String url = Constants.HOST_NAME + "/fmd/";
+					String url = hostname + "/fmd/";
 					java.awt.Desktop.getDesktop().browse(java.net.URI.create(url));
 				} catch (MalformedURLException e) {
 
@@ -119,6 +122,12 @@ public class ConnectToServer extends JFrame {
 				}
 			}
 		});
+
+		try {
+			hostname = CommonUtil.getHostName();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 
 	}
 
