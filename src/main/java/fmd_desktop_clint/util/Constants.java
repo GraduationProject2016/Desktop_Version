@@ -61,5 +61,6 @@ public class Constants {
 	// command
 	public static final String COMAND_COMMAND = "command";
 	public static final String COMAND_PARMS = "parms";
+	public static final int FIlE_TRANSFARE = -1;
 
 }

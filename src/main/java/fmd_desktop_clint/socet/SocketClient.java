@@ -1,10 +1,7 @@
 package fmd_desktop_clint.socet;
 
+import java.io.File;
 import java.io.IOException;
-
-import fmd_desktop_clint.util.CommandConstant;
-import fmd_desktop_clint.util.Constants;
-import fmd_desktop_clint.util.JsonHandler;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
@@ -14,6 +11,10 @@ import java.util.Scanner;
 import fmd_desktop_clint.filesystem.Operation;
 import fmd_desktop_clint.socet.dto.Command;
 import fmd_desktop_clint.socet.dto.MessageDto;
+import fmd_desktop_clint.util.CommandConstant;
+import fmd_desktop_clint.util.CommonUtil;
+import fmd_desktop_clint.util.Constants;
+import fmd_desktop_clint.util.JsonHandler;
 
 public class SocketClient implements Runnable {
 
@@ -29,7 +30,8 @@ public class SocketClient implements Runnable {
 
 	public SocketClient() throws IOException {
 
-		this.serverAddr = "localhost";
+		// TODO add host name
+		this.serverAddr = "localhost"; // getHostName()
 		this.port = 13000;
 		socket = new Socket(InetAddress.getByName(serverAddr), port);
 
@@ -71,6 +73,20 @@ public class SocketClient implements Runnable {
 					result.setContent(Operation.removeDirectory(parms[0]) ? "true" : "false");
 				} else if (stringCommand.equals(CommandConstant.renameDirectory)) {
 					result.setContent(Operation.renameDirectory(parms[0], parms[1]) ? "true" : "false");
+				} else if (stringCommand.equals(CommandConstant.filetransfer)) {
+					result.setContent("true");
+
+					Command com = new Command(Constants.FIlE_TRANSFARE + "", new String[] { parms[0], parms[1] });
+					MessageDto m = new MessageDto(MessageDto.CLIENT_TO_SERVER);
+					// System.out.println(m);
+					m.setContent(JsonHandler.getCommandJson(com));
+					// m.setUserId(1);
+					// m.setDeviceId(1);
+					m.setUserId(CommonUtil.getUserID());
+					m.setDeviceId(CommonUtil.getDeviceID());
+
+					Thread t = new Thread(new Upload(serverAddr, port, new File(parms[1] + "\\" + parms[0]), m));
+					t.start();
 				}
 				send(JsonHandler.getMessageDtoJson(result));
 			} catch (Exception ex) {

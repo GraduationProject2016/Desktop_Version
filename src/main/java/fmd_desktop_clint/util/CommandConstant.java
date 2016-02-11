@@ -31,5 +31,7 @@ public class CommandConstant {
 	public static final String computerDesktop = "computerDesktop";
 
 	public static final String computerPartions = "computerPartions";
+	
+	public static final String filetransfer = "filetransfer";
 
 }
