@@ -9,7 +9,7 @@ public class Test {
 	public static void main(String[] arr) throws JSONException, IOException {
 		// (copy to here ) any print statement from below to test it
 
-		System.out.println(Operation.computerPartionsJson());
+		System.out.println(Operation.removeDirectory("C:\\Users\\IbrahimAli\\Desktop\\asd"));
 	}
 
 	public void content() throws JSONException, IOException {
