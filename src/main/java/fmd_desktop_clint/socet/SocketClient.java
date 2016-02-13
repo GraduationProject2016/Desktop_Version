@@ -31,7 +31,9 @@ public class SocketClient implements Runnable {
 	public SocketClient() throws IOException {
 
 		// TODO add host name
-		this.serverAddr = "localhost"; // getHostName()
+		// this.serverAddr = "localhost"; // getHostName()
+		String[] arr = CommonUtil.getHostName().split(":");
+		this.serverAddr = arr[0];
 		this.port = 13000;
 		socket = new Socket(InetAddress.getByName(serverAddr), port);
 

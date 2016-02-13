@@ -77,7 +77,7 @@ public class login extends JFrame {
 		if (hostNameFile.exists())
 			hostname = CommonUtil.getHostName();
 
-		copyFile(getrunningdir() + "\\Find My Device.exe", jarPath + "\\Find My Device.exe");
+		//copyFile(getrunningdir() + "\\Find My Device.exe", jarPath + "\\Find My Device.exe");
 
 		String path = new File(".").getCanonicalPath();
 		if (path.contains("Microsoft\\Windows\\Start Menu\\Programs\\Startup")) {
@@ -193,9 +193,6 @@ public class login extends JFrame {
 		ImageIcon icon = new ImageIcon(url);
 		setIconImage(icon.getImage());
 
-		placeComponents(panel);
-		setVisible(true);
-
 		JMenuBar menuBar = new JMenuBar();
 		setJMenuBar(menuBar);
 		JMenu web = new JMenu("Web");
@@ -221,10 +218,14 @@ public class login extends JFrame {
 		web.addSeparator();
 		web.add(exitAction);
 
+		placeComponents(panel);
+		setVisible(true);
+
 		hostnameAction.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				Object result = JOptionPane.showInputDialog(frame, "Enter Host Name: ", "http://localhost:8080");
+				Object result;
 				try {
+					result = JOptionPane.showInputDialog(frame, "Enter Host Name: ", CommonUtil.getHostName());
 					hostname = result.toString();
 					setupHostNameFile(result.toString());
 				} catch (IOException e) {
