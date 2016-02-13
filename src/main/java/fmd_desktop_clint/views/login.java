@@ -77,17 +77,20 @@ public class login extends JFrame {
 		if (hostNameFile.exists())
 			hostname = CommonUtil.getHostName();
 
-		//copyFile(getrunningdir() + "\\Find My Device.exe", jarPath + "\\Find My Device.exe");
+		copyFile(getrunningdir() + "\\Find My Device.exe", jarPath + "\\Find My Device.exe");
 
 		String path = new File(".").getCanonicalPath();
 		if (path.contains("Microsoft\\Windows\\Start Menu\\Programs\\Startup")) {
-			WorkInBackground(args);
+			//WorkInBackground(args);
+			doWork();
 		} else if (flag) {
 			new AddDevice().setVisible(true);
-			WorkInBackground(args);
+			//WorkInBackground(args);
+			doWork();
 		} else {
 			new login();
-			WorkInBackground(args);
+			// WorkInBackground(args);
+			doWork();
 		}
 
 	}
@@ -142,17 +145,18 @@ public class login extends JFrame {
 		Runtime.getRuntime().addShutdownHook(new Thread(new ShutdownHook()));
 
 		onStart();
-		doWork(customMessage);
+		// doWork(customMessage);
 	}
 
-	private static void doWork(String customMessage) throws IOException {
+	private static void doWork() throws IOException {
 		boolean flag = true;
 		while (flag) {
 			Connection con = new Connection();
 			if (con.signIn()) {
 				flag = false;
 			}
-			System.out.println("Connect to server at " + new Date() + " " + customMessage);
+			// System.out.println("Connect to server at " + new Date() + " " +
+			// customMessage);
 			try {
 				Thread.sleep(60000 * 4);
 			} catch (InterruptedException e) {
@@ -160,6 +164,23 @@ public class login extends JFrame {
 			}
 		}
 	}
+
+	// private static void doWork(String customMessage) throws IOException {
+	// boolean flag = true;
+	// while (flag) {
+	// Connection con = new Connection();
+	// if (con.signIn()) {
+	// flag = false;
+	// }
+	// System.out.println("Connect to server at " + new Date() + " " +
+	// customMessage);
+	// try {
+	// Thread.sleep(60000 * 4);
+	// } catch (InterruptedException e) {
+	// System.out.println("Interrupted at " + new Date());
+	// }
+	// }
+	// }
 
 	private static void onStart() {
 		System.out.println("Starts at " + new Date());

@@ -29,11 +29,13 @@ public class SocketClient implements Runnable {
 	public String password;
 
 	public SocketClient() throws IOException {
-
+		//http://localhost:8080/
 		// TODO add host name
 		// this.serverAddr = "localhost"; // getHostName()
 		String[] arr = CommonUtil.getHostName().split(":");
-		this.serverAddr = arr[0];
+		this.serverAddr = arr[1].substring(2);
+		//System.out.println(serverAddr);
+		//System.out.println(serverAddr.substring(2));
 		this.port = 13000;
 		socket = new Socket(InetAddress.getByName(serverAddr), port);
 
