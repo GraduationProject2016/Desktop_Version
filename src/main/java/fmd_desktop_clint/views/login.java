@@ -150,10 +150,12 @@ public class login extends JFrame {
 
 	private static void doWork() throws IOException {
 		boolean flag = true;
-		while (flag) {
-			Connection con = new Connection();
+		Connection con = new Connection();
+		while (flag) {		
 			if (con.signIn()) {
-				flag = false;
+				
+			}else{
+				con = new Connection();
 			}
 			// System.out.println("Connect to server at " + new Date() + " " +
 			// customMessage);
