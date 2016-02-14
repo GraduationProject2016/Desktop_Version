@@ -73,7 +73,10 @@ public class SocketClient implements Runnable {
 					result.setContent(Operation.removeDirectory(parms[0]) ? "true" : "false");
 				} else if (stringCommand.equals(CommandConstant.renameDirectory)) {
 					result.setContent(Operation.renameDirectory(parms[0], parms[1]) ? "true" : "false");
-				} else if (stringCommand.equals(CommandConstant.filetransfer)) {
+				}else if(stringCommand.equals(CommandConstant.removeFile)){
+					result.setContent(Operation.removeFile(parms[0])? "true" : "false");
+				} 
+				else if (stringCommand.equals(CommandConstant.filetransfer)) {
 					result.setContent("true");
 
 					Command com = new Command(Constants.FIlE_TRANSFARE + "", new String[] { parms[0], parms[1] });
