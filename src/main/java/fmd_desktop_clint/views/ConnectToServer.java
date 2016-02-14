@@ -152,12 +152,13 @@ public class ConnectToServer extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				boolean flag = true;
-				while (flag) {
-					Connection con = new Connection();
+				Connection con = new Connection();
+				while (flag) {				
 					if (con.signIn()) {
-						flag = false;
+						//flag = false;
 						statusLabel.setVisible(true);
 					} else {
+						con = new Connection();
 						statusLabel.setText("Please Wait .......");
 						statusLabel.setVisible(true);
 					}

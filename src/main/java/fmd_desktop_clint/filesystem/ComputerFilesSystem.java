@@ -42,7 +42,8 @@ public class ComputerFilesSystem {
 				if (listOfFiles[i].isFile()) {
 					fileName = listOfFiles[i].getName();
 					fileSize = listOfFiles[i].length();
-					fileType = Files.probeContentType(listOfFiles[i].toPath());
+					//fileType = Files.probeContentType(listOfFiles[i].toPath());
+					fileType = fileName.substring(fileName.lastIndexOf('.') + 1);
 					files.add(new FMDFile(fileName, fileType, fileSize));
 				} else if (listOfFiles[i].isDirectory()) {
 					fileName = listOfFiles[i].getName();

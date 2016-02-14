@@ -81,13 +81,16 @@ public class login extends JFrame {
 
 		String path = new File(".").getCanonicalPath();
 		if (path.contains("Microsoft\\Windows\\Start Menu\\Programs\\Startup")) {
-			WorkInBackground(args);
+			//WorkInBackground(args);
+			doWork();
 		} else if (flag) {
 			new AddDevice().setVisible(true);
-			WorkInBackground(args);
+			//WorkInBackground(args);
+			doWork();
 		} else {
 			new login();
-			WorkInBackground(args);
+			// WorkInBackground(args);
+			doWork();
 		}
 
 	}
@@ -142,17 +145,20 @@ public class login extends JFrame {
 		Runtime.getRuntime().addShutdownHook(new Thread(new ShutdownHook()));
 
 		onStart();
-		doWork(customMessage);
+		// doWork(customMessage);
 	}
 
-	private static void doWork(String customMessage) throws IOException {
+	private static void doWork() throws IOException {
 		boolean flag = true;
-		while (flag) {
-			Connection con = new Connection();
+		Connection con = new Connection();
+		while (flag) {		
 			if (con.signIn()) {
-				flag = false;
+				
+			}else{
+				con = new Connection();
 			}
-			System.out.println("Connect to server at " + new Date() + " " + customMessage);
+			// System.out.println("Connect to server at " + new Date() + " " +
+			// customMessage);
 			try {
 				Thread.sleep(60000 * 4);
 			} catch (InterruptedException e) {
@@ -160,6 +166,23 @@ public class login extends JFrame {
 			}
 		}
 	}
+
+	// private static void doWork(String customMessage) throws IOException {
+	// boolean flag = true;
+	// while (flag) {
+	// Connection con = new Connection();
+	// if (con.signIn()) {
+	// flag = false;
+	// }
+	// System.out.println("Connect to server at " + new Date() + " " +
+	// customMessage);
+	// try {
+	// Thread.sleep(60000 * 4);
+	// } catch (InterruptedException e) {
+	// System.out.println("Interrupted at " + new Date());
+	// }
+	// }
+	// }
 
 	private static void onStart() {
 		System.out.println("Starts at " + new Date());
@@ -193,9 +216,6 @@ public class login extends JFrame {
 		ImageIcon icon = new ImageIcon(url);
 		setIconImage(icon.getImage());
 
-		placeComponents(panel);
-		setVisible(true);
-
 		JMenuBar menuBar = new JMenuBar();
 		setJMenuBar(menuBar);
 		JMenu web = new JMenu("Web");
@@ -221,10 +241,14 @@ public class login extends JFrame {
 		web.addSeparator();
 		web.add(exitAction);
 
+		placeComponents(panel);
+		setVisible(true);
+
 		hostnameAction.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				Object result = JOptionPane.showInputDialog(frame, "Enter Host Name: ", "http://localhost:8080");
+				Object result;
 				try {
+					result = JOptionPane.showInputDialog(frame, "Enter Host Name: ", CommonUtil.getHostName());
 					hostname = result.toString();
 					setupHostNameFile(result.toString());
 				} catch (IOException e) {
