@@ -19,8 +19,16 @@ public class Connection {
 			client = new SocketClient();
 			clientThread = new Thread(client);
 			clientThread.start();
+			signIn();
 		} catch (Exception ex) {
 		}
+	}
+
+	public boolean isConnected() {
+		if (client != null && client.is_connected) {
+			return true;
+		}
+		return false;
 	}
 
 	public Boolean signIn() {

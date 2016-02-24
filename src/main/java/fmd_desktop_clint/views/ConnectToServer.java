@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Date;
 
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
@@ -112,7 +113,7 @@ public class ConnectToServer extends JFrame {
 		openAction.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				try {
-					String url = hostname + "/fmd/";
+					String url = "http://" + hostname + ":8080/fmd/";
 					java.awt.Desktop.getDesktop().browse(java.net.URI.create(url));
 				} catch (MalformedURLException e) {
 
@@ -146,28 +147,23 @@ public class ConnectToServer extends JFrame {
 		final JLabel statusLabel = new JLabel("you are now connected");
 		statusLabel.setHorizontalAlignment(SwingConstants.LEFT);
 		statusPanel.add(statusLabel);
-		statusLabel.setVisible(false);
+		statusLabel.setVisible(true);
 
 		ConnectButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				boolean flag = true;
 				Connection con = new Connection();
-				while (flag) {				
-					if (con.signIn()) {
-						//flag = false;
-						statusLabel.setVisible(true);
-					} else {
-						con = new Connection();
-						statusLabel.setText("Please Wait .......");
-						statusLabel.setVisible(true);
-					}
 
+				if (con.isConnected()) {
+					statusLabel.setText("Connected Successfully .......");
+				} else {
+					statusLabel.setText("Please Wait .......");
 					try {
-						Thread.sleep(60000 * 1);
-					} catch (InterruptedException ec) {
-						System.out.println("Interrupted at ");
+						Thread.sleep(60000 * 4);
+					} catch (InterruptedException e1) {
+						System.out.println("Interrupted at " + new Date());
 					}
+					con = new Connection();
 				}
 			}
 		});

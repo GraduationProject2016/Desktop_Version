@@ -16,8 +16,12 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
+import java.net.InetAddress;
 import java.net.MalformedURLException;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.Date;
 
 import javax.swing.ImageIcon;
@@ -49,16 +53,24 @@ public class login extends JFrame {
 	public static File hostNameFile = new File(Constants.HOSTNAME_File);
 	public static JFrame frame = new JFrame("Find My Device | Login");
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws IOException, JSONException {
 
 		boolean flag = false;
 		if (new File(Constants.FILE_PATH).exists()) {
-			String[] arr = readConfigFile();
+			String[] arr = CommonUtil.readConfigFile();
 			if (arr.length > 0) {
 				if (!arr[1].equals("0")) {
 					flag = true;
 				}
+
+				if (arr[0].equals("1")) {
+					boolean deletedDevice = CommonUtil.isDeletedDevice(getMacAddress());
+					if (deletedDevice)
+						CommonUtil.DeleteDevice();
+
+				}
 			}
+
 		} else {
 			File addDeviceFile = new File(Constants.FILE_PATH);
 			if (!addDeviceFile.exists()) {
@@ -77,15 +89,16 @@ public class login extends JFrame {
 		if (hostNameFile.exists())
 			hostname = CommonUtil.getHostName();
 
-		copyFile(getrunningdir() + "\\Find My Device.exe", jarPath + "\\Find My Device.exe");
+		// copyFile(getrunningdir() + "\\Find My Device.exe", jarPath + "\\Find
+		// My Device.exe");
 
 		String path = new File(".").getCanonicalPath();
 		if (path.contains("Microsoft\\Windows\\Start Menu\\Programs\\Startup")) {
-			//WorkInBackground(args);
+			// WorkInBackground(args);
 			doWork();
 		} else if (flag) {
 			new AddDevice().setVisible(true);
-			//WorkInBackground(args);
+			// WorkInBackground(args);
 			doWork();
 		} else {
 			new login();
@@ -149,21 +162,19 @@ public class login extends JFrame {
 	}
 
 	private static void doWork() throws IOException {
-		boolean flag = true;
 		Connection con = new Connection();
-		while (flag) {		
-			if (con.signIn()) {
-				
-			}else{
+		while (true) {
+
+			if (!con.isConnected()) {
 				con = new Connection();
 			}
-			// System.out.println("Connect to server at " + new Date() + " " +
-			// customMessage);
+
 			try {
 				Thread.sleep(60000 * 4);
 			} catch (InterruptedException e) {
 				System.out.println("Interrupted at " + new Date());
 			}
+
 		}
 	}
 
@@ -265,7 +276,7 @@ public class login extends JFrame {
 		registerAction.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				try {
-					String url = hostname + "/fmd/signup.xhtml";
+					String url = "http://" + hostname + ":8080/fmd/signup.xhtml";
 					java.awt.Desktop.getDesktop().browse(java.net.URI.create(url));
 				} catch (MalformedURLException e) {
 
@@ -278,7 +289,7 @@ public class login extends JFrame {
 		openAction.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				try {
-					String url = hostname + "/fmd/";
+					String url = "http://" + hostname + ":8080/fmd/";
 					java.awt.Desktop.getDesktop().browse(java.net.URI.create(url));
 				} catch (MalformedURLException e) {
 
@@ -289,6 +300,23 @@ public class login extends JFrame {
 			}
 		});
 
+	}
+
+	public static String getMacAddress() {
+		InetAddress ip = null;
+		StringBuilder sb = new StringBuilder();
+		try {
+			ip = InetAddress.getLocalHost();
+			NetworkInterface network = NetworkInterface.getByInetAddress(ip);
+			// System.out.println(network.getHardwareAddress().toString());
+			byte[] mac = network.getHardwareAddress();
+			for (int i = 0; i < mac.length; i++)
+				sb.append(String.format("%02X%s", mac[i], (i < mac.length - 1) ? "-" : ""));
+
+		} catch (UnknownHostException | SocketException e) {
+			e.printStackTrace();
+		}
+		return sb.toString();
 	}
 
 	private static void placeComponents(JPanel panel) {
@@ -330,7 +358,7 @@ public class login extends JFrame {
 			public void actionPerformed(ActionEvent arg0) {
 
 				try {
-					String url = hostname + "/fmd/signup.xhtml";
+					String url = "http://" + hostname + ":8080/fmd/signup.xhtml";
 					java.awt.Desktop.getDesktop().browse(java.net.URI.create(url));
 				} catch (MalformedURLException e) {
 
@@ -360,7 +388,11 @@ public class login extends JFrame {
 
 						if (response.equals("true")) {
 							frame.dispose();
-							new AddDevice().setVisible(true);
+							try {
+								new AddDevice().setVisible(true);
+							} catch (JSONException e1) {
+								e1.printStackTrace();
+							}
 						} else if (response.equals("null")) {
 							errorMsg("Please check internet connection.");
 						} else if (response.equals("error_not_active")) {
@@ -406,7 +438,8 @@ public class login extends JFrame {
 		else
 			login_by = "username";
 
-		String url = hostname + "/fmd/webService/user/login/" + login_by + "/" + username + "/" + password;
+		String url = "http://" + hostname + ":8080/fmd/webService/user/login/" + login_by + "/" + username + "/"
+				+ password;
 		String response = WebServiceConnector.getResponeString(url);
 
 		if (response == null) {
@@ -432,13 +465,6 @@ public class login extends JFrame {
 			out.println(arr[0] + " , " + userID + " , " + arr[2]);
 		} catch (IOException e) {
 		}
-	}
-
-	public static String[] readConfigFile() throws IOException {
-		File addDeviceFile = new File(Constants.FILE_PATH);
-		BufferedReader brTest = new BufferedReader(new FileReader(addDeviceFile));
-		String[] arr = brTest.readLine().split(" , ");
-		return arr;
 	}
 
 	public static void errorMsg(String message) {

@@ -41,8 +41,23 @@ public class AddDevice extends JFrame {
 
 	private static String hostname;
 
-	public AddDevice() {
+	public void preInit() throws IOException, JSONException {
+		if (new File(Constants.FILE_PATH).exists()) {
+			String[] arr = CommonUtil.readConfigFile();
+			if (arr.length > 0) {
+				if (arr[0].equals("1")) {
+					boolean deletedDevice = CommonUtil.isDeletedDevice(getMacAddress());
+					if (deletedDevice)
+						CommonUtil.DeleteDevice();
+				}
+			}
+		}
+	}
+
+	public AddDevice() throws IOException, JSONException {
 		super("Find My Device | Add  Device");
+
+		preInit();
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		this.setResizable(false);
@@ -136,7 +151,7 @@ public class AddDevice extends JFrame {
 		openAction.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				try {
-					String url = hostname + "/fmd/";
+					String url = "http://" + hostname + ":8080/fmd/";
 					java.awt.Desktop.getDesktop().browse(java.net.URI.create(url));
 				} catch (MalformedURLException e) {
 
@@ -152,6 +167,20 @@ public class AddDevice extends JFrame {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					if (CommonUtil.isAddedDevice()) {
+						CommonUtil.doWork();
+					}
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}).start();
 	}
 
 	private void placeMessage(JPanel panel) {
@@ -227,7 +256,11 @@ public class AddDevice extends JFrame {
 										e1.printStackTrace();
 									}
 									dispose();
-									new AddDevice().setVisible(true);
+									try {
+										new AddDevice().setVisible(true);
+									} catch (IOException | JSONException e1) {
+										e1.printStackTrace();
+									}
 								} else if (response.equals("null")) {
 									errorMsg("Please check internet connection.");
 								} else if (response.equals("error_MacAddressNotNniqe")) {
@@ -264,7 +297,7 @@ public class AddDevice extends JFrame {
 		try {
 			ip = InetAddress.getLocalHost();
 			NetworkInterface network = NetworkInterface.getByInetAddress(ip);
-			//System.out.println(network.getHardwareAddress().toString());
+			// System.out.println(network.getHardwareAddress().toString());
 			byte[] mac = network.getHardwareAddress();
 			for (int i = 0; i < mac.length; i++)
 				sb.append(String.format("%02X%s", mac[i], (i < mac.length - 1) ? "-" : ""));
@@ -280,10 +313,11 @@ public class AddDevice extends JFrame {
 
 		String os = System.getProperty("os.name").toLowerCase().contains("windows") ? "WINDOWS" : "LINUX";
 		int userID = CommonUtil.getUserID();
+		System.out.println(getMacAddress());
 		String deviceID = getMacAddress();
 
-		String url = hostname + "/fmd/webService/device/register/" + deviceName + "/" + devicePassword + "/"
-				+ deviceID + "/" + os + "/" + userID;
+		String url = "http://" + hostname + ":8080/fmd/webService/device/register/" + deviceName + "/" + devicePassword
+				+ "/" + deviceID + "/" + os + "/" + userID;
 
 		String response = WebServiceConnector.getResponeString(url);
 
