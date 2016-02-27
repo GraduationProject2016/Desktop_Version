@@ -1,6 +1,7 @@
 package fmd_desktop_clint.views;
 
 import java.awt.Color;
+import java.awt.Desktop;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -15,6 +16,8 @@ import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.UnknownHostException;
 
@@ -192,6 +195,56 @@ public class AddDevice extends JFrame {
 		// message.setBackground(Color.GRAY);
 		message.setForeground(Color.red);
 		panel.add(message);
+
+		JLabel instructions = new JLabel("Instructions [Help Us To Find Your Device Location]...");
+		instructions.setBounds(90, 200, 600, 40);
+		instructions.setFont(new Font("Serif", Font.PLAIN, 25));
+		instructions.setOpaque(true);
+		instructions.setBackground(Color.LIGHT_GRAY);
+		instructions.setForeground(Color.BLACK);
+		panel.add(instructions);
+
+		JLabel instructions1 = new JLabel("(1) Click on the below button.");
+		instructions1.setBounds(90, 230, 600, 40);
+		instructions1.setFont(new Font("Serif", Font.PLAIN, 20));
+		instructions1.setOpaque(true);
+		instructions1.setBackground(Color.LIGHT_GRAY);
+		instructions1.setForeground(Color.BLACK);
+		panel.add(instructions1);
+
+		JLabel instructions2 = new JLabel("(2) It will open your browser.");
+		instructions2.setBounds(90, 260, 600, 40);
+		instructions2.setFont(new Font("Serif", Font.PLAIN, 20));
+		instructions2.setOpaque(true);
+		instructions2.setBackground(Color.LIGHT_GRAY);
+		instructions2.setForeground(Color.BLACK);
+		panel.add(instructions2);
+
+		JLabel instructions3 = new JLabel("(3) Click allow.");
+		instructions3.setBounds(90, 290, 600, 40);
+		instructions3.setFont(new Font("Serif", Font.PLAIN, 20));
+		instructions3.setOpaque(true);
+		instructions3.setBackground(Color.LIGHT_GRAY);
+		instructions3.setForeground(Color.BLACK);
+		panel.add(instructions3);
+
+		JButton instbtn = new JButton("Allowing GPS Location");
+		instbtn.setBounds(90, 330, 600, 40);
+		instbtn.setOpaque(true);
+		instbtn.setForeground(Color.BLACK);
+		panel.add(instbtn);
+		instbtn.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+					Desktop.getDesktop().browse(new URI("http://" + CommonUtil.getHostName()
+							+ ":8080/fmd/webserviceconnector.html?qu=" + CommonUtil.getDeviceID()));
+				} catch (IOException | URISyntaxException e1) {
+					e1.printStackTrace();
+				}
+			}
+		});
 	}
 
 	private void placeComponents(JPanel panel) {
