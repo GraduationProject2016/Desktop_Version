@@ -41,6 +41,18 @@ public class SocketClient implements Runnable {
 		In = new ObjectInputStream(socket.getInputStream());
 	}
 
+	public SocketClient(String address) throws IOException {
+
+		is_connected = false;
+		this.serverAddr = address;
+		this.port = 13000;
+		socket = new Socket(InetAddress.getByName(serverAddr), port);
+
+		Out = new ObjectOutputStream(socket.getOutputStream());
+		Out.flush();
+		In = new ObjectInputStream(socket.getInputStream());
+	}
+
 	@Override
 	public void run() {
 		boolean keepRunning = true;

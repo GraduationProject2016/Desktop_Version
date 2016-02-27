@@ -18,7 +18,7 @@ public class Main {
 		// }
 		// System.out.println((2 << 25));
 		try {
-			SocketClient client = new SocketClient();
+			SocketClient client = new SocketClient("localhost");
 			Thread clientThread = new Thread(client);
 			clientThread.start();
 
