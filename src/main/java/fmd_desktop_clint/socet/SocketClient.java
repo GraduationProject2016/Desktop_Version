@@ -32,8 +32,8 @@ public class SocketClient implements Runnable {
 		//http://localhost:8080/
 		// TODO add host name
 		// this.serverAddr = "localhost"; // getHostName()
-		String[] arr = CommonUtil.getHostName().split(":");
-		this.serverAddr = arr[1].substring(2);
+//		String[] arr = CommonUtil.getHostName().split(":");
+		this.serverAddr = "localhost";
 		//System.out.println(serverAddr);
 		//System.out.println(serverAddr.substring(2));
 		this.port = 13000;
