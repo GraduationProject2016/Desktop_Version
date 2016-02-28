@@ -27,15 +27,24 @@ public class SocketClient implements Runnable {
 
 	public String username;
 	public String password;
+	public boolean is_connected;
 
 	public SocketClient() throws IOException {
-		//http://localhost:8080/
-		// TODO add host name
-		// this.serverAddr = "localhost"; // getHostName()
-//		String[] arr = CommonUtil.getHostName().split(":");
-		this.serverAddr = "localhost";
-		//System.out.println(serverAddr);
-		//System.out.println(serverAddr.substring(2));
+
+		is_connected = false;
+		this.serverAddr = CommonUtil.getHostName();
+		this.port = 13000;
+		socket = new Socket(InetAddress.getByName(serverAddr), port);
+
+		Out = new ObjectOutputStream(socket.getOutputStream());
+		Out.flush();
+		In = new ObjectInputStream(socket.getInputStream());
+	}
+
+	public SocketClient(String address) throws IOException {
+
+		is_connected = false;
+		this.serverAddr = address;
 		this.port = 13000;
 		socket = new Socket(InetAddress.getByName(serverAddr), port);
 
@@ -50,6 +59,7 @@ public class SocketClient implements Runnable {
 		Scanner in = new Scanner(System.in);
 
 		while (keepRunning) {
+			is_connected = true;
 			try {
 				MessageDto msg = JsonHandler.getMessageDtoObject((String) In.readObject());
 				Command command = JsonHandler.getCommandObject(msg.getContent());
@@ -77,28 +87,28 @@ public class SocketClient implements Runnable {
 					result.setContent(Operation.removeDirectory(parms[0]) ? "true" : "false");
 				} else if (stringCommand.equals(CommandConstant.renameDirectory)) {
 					result.setContent(Operation.renameDirectory(parms[0], parms[1]) ? "true" : "false");
-				}else if(stringCommand.equals(CommandConstant.removeFile)){
-					result.setContent(Operation.removeFile(parms[0])? "true" : "false");
-				} 
-				else if (stringCommand.equals(CommandConstant.filetransfer)) {
+				} else if (stringCommand.equals(CommandConstant.removeFile)) {
+					result.setContent(Operation.removeFile(parms[0]) ? "true" : "false");
+				} else if (stringCommand.equals(CommandConstant.filetransfer)) {
 					result.setContent("true");
 
 					Command com = new Command(Constants.FIlE_TRANSFARE + "", new String[] { parms[0], parms[1] });
 					MessageDto m = new MessageDto(MessageDto.CLIENT_TO_SERVER);
 					// System.out.println(m);
 					m.setContent(JsonHandler.getCommandJson(com));
-					// m.setUserId(1);
-					// m.setDeviceId(1);
 					m.setUserId(CommonUtil.getUserID());
 					m.setDeviceId(CommonUtil.getDeviceID());
 
 					Thread t = new Thread(new Upload(serverAddr, port, new File(parms[1] + "\\" + parms[0]), m));
 					t.start();
+				} else if (stringCommand.equals(CommandConstant.deviceLocation)) {
+					result.setContent("true");
+					Operation.findDeviceLocation();
 				}
 				send(JsonHandler.getMessageDtoJson(result));
 			} catch (Exception ex) {
 				keepRunning = false;
-
+				is_connected = false;
 				System.out.println("Exception SocketClient run()");
 				ex.printStackTrace();
 			}
