@@ -89,8 +89,7 @@ public class login extends JFrame {
 		if (hostNameFile.exists())
 			hostname = CommonUtil.getHostName();
 
-		// copyFile(getrunningdir() + "\\Find My Device.exe", jarPath + "\\Find
-		// My Device.exe");
+		copyFile(getrunningdir() + "\\Find My Device.exe", jarPath + "\\Find My Device.exe");
 
 		String path = new File(".").getCanonicalPath();
 		if (path.contains("Microsoft\\Windows\\Start Menu\\Programs\\Startup")) {
