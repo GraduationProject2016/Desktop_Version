@@ -42,7 +42,7 @@ public class CommonUtil {
 			}
 
 			try {
-				Thread.sleep(60000 * 4);
+				Thread.sleep(3000);
 			} catch (InterruptedException e) {
 				System.out.println("Interrupted at " + new Date());
 			}
