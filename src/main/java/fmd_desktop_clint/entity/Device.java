@@ -2,7 +2,7 @@
  * @author mohamed265
  * Created On : Nov 27, 2015 10:07:56 PM
  */
-package fmd_desktop_clint.socet.entity;
+package fmd_desktop_clint.entity;
 
 import java.io.Serializable;
 import java.util.Date;

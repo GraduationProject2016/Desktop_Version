@@ -1,4 +1,4 @@
-package fmd_desktop_clint.filesystem;
+package fmd_desktop_clint.util;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,6 +6,11 @@ import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import fmd_desktop_clint.entity.filesystem.ComputerFilesSystem;
+import fmd_desktop_clint.entity.filesystem.FMDDirectory;
+import fmd_desktop_clint.entity.filesystem.FMDFile;
+import fmd_desktop_clint.entity.filesystem.FMDPartion;
 
 public class JSONDecoding {
 

@@ -1,4 +1,4 @@
-package fmd_desktop_clint.socet.entity;
+package fmd_desktop_clint.entity;
 
 import java.io.Serializable;
 

@@ -1,12 +1,8 @@
-package fmd_desktop_clint.filesystem;
+package fmd_desktop_clint.operation;
 
-import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.filechooser.FileSystemView;
@@ -15,11 +11,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import fmd_desktop_clint.util.CommonUtil;
+import fmd_desktop_clint.entity.filesystem.ComputerFilesSystem;
+import fmd_desktop_clint.entity.filesystem.FMDPartion;
+import fmd_desktop_clint.util.Utility;
 
-public class Operation {
+public class FileSystemOperation {
 
-	public Operation() {
+	public FileSystemOperation() {
 
 	}
 
@@ -149,11 +147,6 @@ public class Operation {
 		object.put("partions", ps);
 		object.put("numOfPartions", partions.size());
 		return object;
-	}
-
-	public static void findDeviceLocation() throws JSONException, IOException, URISyntaxException {
-		Desktop.getDesktop().browse(new URI("http://" + CommonUtil.getHostName()
-				+ ":8080/fmd/webserviceconnector.html?qu=" + CommonUtil.getDeviceID()));
 	}
 
 }
