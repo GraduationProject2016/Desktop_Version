@@ -18,13 +18,14 @@ public class Main {
 		// }
 		// System.out.println((2 << 25));
 		try {
-			SocketClient client = new SocketClient("localhost");
+			 SocketClient client = new SocketClient("192.168.43.67");
+			//SocketClient client = new SocketClient("localhost");
 			Thread clientThread = new Thread(client);
 			clientThread.start();
 
 			MessageDto msg = new MessageDto(MessageDto.CLIENT_TO_SERVER);
 			msg.setDeviceId(1);
-			msg.setUserId(0);
+			msg.setUserId(1);
 			msg.setContent("sign_in");
 			client.send(JsonHandler.getMessageDtoJson(msg));
 			// client.send(JsonHandler.getMessageDtoJson(msg));
