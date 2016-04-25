@@ -28,4 +28,5 @@ public class CommandConstant {
 
 	public static final String recordVoice = "recordVoice";
 
+	public static final String recordVedio = "recordVedio";
 }

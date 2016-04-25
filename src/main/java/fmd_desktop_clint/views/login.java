@@ -67,7 +67,6 @@ public class login extends JFrame {
 					boolean deletedDevice = CommonUtil.isDeletedDevice(getMacAddress());
 					if (deletedDevice)
 						CommonUtil.DeleteDevice();
-
 				}
 			}
 
@@ -84,15 +83,12 @@ public class login extends JFrame {
 
 		}
 
-		String jarPath = getautostart();
-
 		if (hostNameFile.exists())
 			hostname = CommonUtil.getHostName();
 
-		copyFile(getrunningdir() + "\\Find My Device.exe", jarPath + "\\Find My Device.exe");
+		copyConfigsFiles();
 
-		String path = new File(".").getCanonicalPath();
-		if (path.contains("Microsoft\\Windows\\Start Menu\\Programs\\Startup")) {
+		if (getrunningdir().contains("Microsoft\\Windows\\Start Menu\\Programs\\Startup")) {
 			// WorkInBackground(args);
 			doWork();
 		} else if (flag) {
@@ -105,6 +101,29 @@ public class login extends JFrame {
 			doWork();
 		}
 
+	}
+
+	public static void copyConfigsFiles() {
+		// String jarPath = getautostart();
+		// if (!new File(jarPath + "\\Find My Device.exe").exists()) {
+		// try {
+		// copyFile(getrunningdir() + "\\Find My Device.exe", jarPath + "\\Find
+		// My Device.exe");
+		// } catch (IOException e) {
+		// e.printStackTrace();
+		// }
+		// }
+
+		URL url = login.class.getResource("/resources/webrecording.jar");
+		File webrecordingJar = new File(url.getPath());
+
+		if (!new File(Constants.APPDATA + "\\webrecording.jar").exists()) {
+			try {
+				copyFile(webrecordingJar.getAbsolutePath(), Constants.APPDATA + "\\webrecording.jar");
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 	public static void setupHostNameFile(String hostname_) throws IOException {

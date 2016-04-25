@@ -4,12 +4,6 @@
  */
 package fmd_desktop_clint.util;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.PrintWriter;
-
 /**
  * @author mohamed265
  * @author ibrahim
@@ -27,7 +21,8 @@ public class Constants {
 	public static final String HOSTNAME_File = System.getenv("APPDATA") + "\\Find My Device\\hostname.txt";
 	public static final String FILE_PATH = System.getenv("APPDATA") + "\\Find My Device\\configfile.txt";
 	public static final String LOG_FILE = System.getenv("APPDATA") + "\\Find My Device\\log.txt";
-
+	public static final String APPDATA = System.getenv("APPDATA") + "\\Find My Device";
+	
 	// Web Service Constants
 	public static final String ID = "id";
 	public static final String USER_NAME = "username";
