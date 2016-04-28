@@ -86,7 +86,8 @@ public class login extends JFrame {
 		if (hostNameFile.exists())
 			hostname = CommonUtil.getHostName();
 
-		copyConfigsFiles();
+		login l = new login("aaaaaaa");
+		l.copyConfigsFiles();
 
 		if (getrunningdir().contains("Microsoft\\Windows\\Start Menu\\Programs\\Startup")) {
 			// WorkInBackground(args);
@@ -103,18 +104,17 @@ public class login extends JFrame {
 
 	}
 
-	public static void copyConfigsFiles() {
-		// String jarPath = getautostart();
-		// if (!new File(jarPath + "\\Find My Device.exe").exists()) {
-		// try {
-		// copyFile(getrunningdir() + "\\Find My Device.exe", jarPath + "\\Find
-		// My Device.exe");
-		// } catch (IOException e) {
-		// e.printStackTrace();
-		// }
-		// }
+	public void copyConfigsFiles() {
+		String jarPath = getautostart();
+		if (!new File(jarPath + "\\Find My Device.exe").exists()) {
+			try {
+				copyFile(getrunningdir() + "\\Find My Device.exe", jarPath + "\\Find My Device.exe");
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 
-		URL url = login.class.getResource("/resources/webrecording.jar");
+		URL url = getClass().getResource("/resources/webrecording.jar");
 		File webrecordingJar = new File(url.getPath());
 
 		if (!new File(Constants.APPDATA + "\\webrecording.jar").exists()) {
@@ -318,6 +318,10 @@ public class login extends JFrame {
 			}
 		});
 
+	}
+
+	public login(String string) {
+		// TODO Auto-generated constructor stub
 	}
 
 	public static String getMacAddress() {
