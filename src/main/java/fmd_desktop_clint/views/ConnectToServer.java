@@ -1,20 +1,20 @@
 package fmd_desktop_clint.views;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
+import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
 
+import javax.imageio.ImageIO;
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -26,11 +26,15 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
+import javax.swing.border.Border;
+
+import org.json.JSONException;
 
 import fmd_desktop_clint.socet.Connection;
 import fmd_desktop_clint.util.CommonUtil;
 import fmd_desktop_clint.util.Constants;
 
+@SuppressWarnings("serial")
 public class ConnectToServer extends JFrame {
 
 	private static String hostname;
@@ -102,7 +106,7 @@ public class ConnectToServer extends JFrame {
 		logoutAction.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				try {
-					logout();
+					SuperUtil.logout();
 					dispose();
 					new login();
 				} catch (IOException e) {
@@ -134,9 +138,36 @@ public class ConnectToServer extends JFrame {
 
 	private void placeComponents(JPanel panel) {
 		panel.setLayout(null);
-		JButton ConnectButton = new JButton("Connect");
-		ConnectButton.setBounds(100, 120, 600, 100);
+
+		BufferedImage myPicture, iconProfile;
+		try {
+			iconProfile = ImageIO.read(new File(getClass().getResource("/resources/userpic.jpg").getPath()));
+			JLabel iconProfileLab = new JLabel(new ImageIcon(iconProfile));
+			iconProfileLab.setBounds(100, 80, 150, 150);
+			Border border = BorderFactory.createLineBorder(Color.BLACK, 5);
+			iconProfileLab.setBorder(border);
+			iconProfileLab.setOpaque(false);
+			panel.add(iconProfileLab);
+
+			myPicture = ImageIO.read(new File(getClass().getResource("/resources/bkimage.jpg").getPath()));
+			JLabel picLabel = new JLabel(new ImageIcon(myPicture));
+			picLabel.setBounds(-100, 0, 1000, 150);
+			panel.add(picLabel);
+		} catch (IOException e2) {
+			e2.printStackTrace();
+		}
+
+		JButton ConnectButton = new JButton("CONNECT TO OUR SERVER");
+		ConnectButton.setBounds(100, 250, 600, 80);
+		ConnectButton.setFont(new Font("Serif", Font.PLAIN, 25));
+		ConnectButton.setForeground(Color.BLACK);
 		panel.add(ConnectButton);
+
+		JButton back = new JButton("BACK TO HOME");
+		back.setBounds(100, 360, 600, 80);
+		back.setFont(new Font("Serif", Font.PLAIN, 25));
+		back.setForeground(Color.BLACK);
+		panel.add(back);
 
 		final JPanel statusPanel = new JPanel();
 
@@ -168,17 +199,18 @@ public class ConnectToServer extends JFrame {
 			}
 		});
 
+		back.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+					new AddDevice().setVisible(true);
+					dispose();
+				} catch (IOException | JSONException e1) {
+					e1.printStackTrace();
+				}
+
+			}
+		});
 	}
 
-	public static void logout() throws IOException {
-		File addDeviceFile = new File(Constants.FILE_PATH);
-		BufferedReader brTest = new BufferedReader(new FileReader(addDeviceFile));
-		String[] arr = brTest.readLine().split(" , ");
-
-		try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(Constants.FILE_PATH, false)))) {
-			out.println(arr[0] + " , " + 0 + " , " + arr[2]);
-		} catch (IOException e) {
-		}
-
-	}
 }

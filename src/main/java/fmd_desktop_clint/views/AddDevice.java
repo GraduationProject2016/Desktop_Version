@@ -5,22 +5,17 @@ import java.awt.Desktop;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
+import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.net.InetAddress;
 import java.net.MalformedURLException;
-import java.net.NetworkInterface;
-import java.net.SocketException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.UnknownHostException;
+import java.net.URLEncoder;
 
+import javax.imageio.ImageIO;
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -28,10 +23,10 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
+import javax.swing.border.Border;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -40,6 +35,7 @@ import fmd_desktop_clint.util.CommonUtil;
 import fmd_desktop_clint.util.Constants;
 import fmd_desktop_clint.util.WebServiceConnector;
 
+@SuppressWarnings("serial")
 public class AddDevice extends JFrame {
 
 	private static String hostname;
@@ -49,7 +45,7 @@ public class AddDevice extends JFrame {
 			String[] arr = CommonUtil.readConfigFile();
 			if (arr.length > 0) {
 				if (arr[0].equals("1")) {
-					boolean deletedDevice = CommonUtil.isDeletedDevice(getMacAddress());
+					boolean deletedDevice = CommonUtil.isDeletedDevice(SuperUtil.getMacAddress());
 					if (deletedDevice)
 						CommonUtil.DeleteDevice();
 				}
@@ -143,7 +139,7 @@ public class AddDevice extends JFrame {
 		logoutAction.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				try {
-					logout();
+					SuperUtil.logout();
 					new login();
 					dispose();
 				} catch (IOException e) {
@@ -188,16 +184,34 @@ public class AddDevice extends JFrame {
 
 	private void placeMessage(JPanel panel) {
 		panel.setLayout(null);
-		JLabel message = new JLabel("This Computer is already added Successfully");
-		message.setBounds(70, 100, 750, 100);
-		message.setFont(new Font("Serif", Font.PLAIN, 35));
+
+		BufferedImage myPicture, iconProfile;
+		try {
+			iconProfile = ImageIO.read(new File(getClass().getResource("/resources/userpic.jpg").getPath()));
+			JLabel iconProfileLab = new JLabel(new ImageIcon(iconProfile));
+			iconProfileLab.setBounds(100, 80, 150, 150);
+			Border border = BorderFactory.createLineBorder(Color.BLACK, 5);
+			iconProfileLab.setBorder(border);
+			iconProfileLab.setOpaque(false);
+			panel.add(iconProfileLab);
+
+			myPicture = ImageIO.read(new File(getClass().getResource("/resources/bkimage.jpg").getPath()));
+			JLabel picLabel = new JLabel(new ImageIcon(myPicture));
+			picLabel.setBounds(-100, 0, 1000, 150);
+			panel.add(picLabel);
+		} catch (IOException e2) {
+			e2.printStackTrace();
+		}
+
+		JLabel message = new JLabel("This Device is subscribed Successfully");
+		message.setBounds(270, 150, 900, 100);
+		message.setFont(new Font("Serif", Font.PLAIN, 30));
 		message.setOpaque(true);
-		// message.setBackground(Color.GRAY);
 		message.setForeground(Color.red);
 		panel.add(message);
 
-		JLabel instructions = new JLabel("Instructions [Help Us To Find Your Device Location]...");
-		instructions.setBounds(90, 200, 600, 40);
+		JLabel instructions = new JLabel("If You Want to subscribe your current device location ? ");
+		instructions.setBounds(90, 300, 600, 40);
 		instructions.setFont(new Font("Serif", Font.PLAIN, 25));
 		instructions.setOpaque(true);
 		instructions.setBackground(Color.LIGHT_GRAY);
@@ -205,7 +219,7 @@ public class AddDevice extends JFrame {
 		panel.add(instructions);
 
 		JLabel instructions1 = new JLabel("(1) Click on the below button.");
-		instructions1.setBounds(90, 230, 600, 40);
+		instructions1.setBounds(90, 330, 600, 40);
 		instructions1.setFont(new Font("Serif", Font.PLAIN, 20));
 		instructions1.setOpaque(true);
 		instructions1.setBackground(Color.LIGHT_GRAY);
@@ -213,7 +227,7 @@ public class AddDevice extends JFrame {
 		panel.add(instructions1);
 
 		JLabel instructions2 = new JLabel("(2) It will open your browser.");
-		instructions2.setBounds(90, 260, 600, 40);
+		instructions2.setBounds(90, 360, 600, 40);
 		instructions2.setFont(new Font("Serif", Font.PLAIN, 20));
 		instructions2.setOpaque(true);
 		instructions2.setBackground(Color.LIGHT_GRAY);
@@ -221,7 +235,7 @@ public class AddDevice extends JFrame {
 		panel.add(instructions2);
 
 		JLabel instructions3 = new JLabel("(3) Click allow.");
-		instructions3.setBounds(90, 290, 600, 40);
+		instructions3.setBounds(90, 390, 600, 40);
 		instructions3.setFont(new Font("Serif", Font.PLAIN, 20));
 		instructions3.setOpaque(true);
 		instructions3.setBackground(Color.LIGHT_GRAY);
@@ -229,7 +243,7 @@ public class AddDevice extends JFrame {
 		panel.add(instructions3);
 
 		JButton instbtn = new JButton("Allowing GPS Location");
-		instbtn.setBounds(90, 330, 600, 40);
+		instbtn.setBounds(90, 425, 600, 40);
 		instbtn.setOpaque(true);
 		instbtn.setForeground(Color.BLACK);
 		panel.add(instbtn);
@@ -250,40 +264,61 @@ public class AddDevice extends JFrame {
 	private void placeComponents(JPanel panel) {
 		panel.setLayout(null);
 
-		JLabel message = new JLabel("Register Your Device to use our service.");
-		message.setBounds(150, 20, 750, 100);
-		message.setFont(new Font("Time New Roman", Font.ITALIC, 30));
-		message.setOpaque(true);
+		BufferedImage myPicture, iconProfile;
+		try {
+			iconProfile = ImageIO.read(new File(getClass().getResource("/resources/userpic.jpg").getPath()));
+			JLabel iconProfileLab = new JLabel(new ImageIcon(iconProfile));
+			iconProfileLab.setBounds(100, 80, 150, 150);
+			Border border = BorderFactory.createLineBorder(Color.BLACK, 5);
+			iconProfileLab.setBorder(border);
+			iconProfileLab.setOpaque(false);
+			panel.add(iconProfileLab);
+
+			myPicture = ImageIO.read(new File(getClass().getResource("/resources/bkimage.jpg").getPath()));
+			JLabel picLabel = new JLabel(new ImageIcon(myPicture));
+			picLabel.setBounds(-100, 0, 1000, 150);
+			panel.add(picLabel);
+		} catch (IOException e2) {
+			e2.printStackTrace();
+		}
+		
+		JLabel message = new JLabel("Register Your Device");
+		message.setBounds(340, 150, 900, 100);
+		message.setFont(new Font("Time New Roman", Font.ITALIC, 37)); 
 		message.setForeground(Color.BLACK);
 		panel.add(message);
 
 		JLabel deviceNameLabel = new JLabel("Device Name");
-		deviceNameLabel.setBounds(250, 140, 80, 25);
+		deviceNameLabel.setBounds(370, 250, 120, 25);
+		deviceNameLabel.setFont(new Font("Time New Roman", Font.ITALIC, 18));  
 		panel.add(deviceNameLabel);
 
 		final JTextField deviceNameInput = new JTextField(20);
-		deviceNameInput.setBounds(350, 140, 160, 25);
+		deviceNameInput.setBounds(500, 250, 160, 25);
 		panel.add(deviceNameInput);
 
 		JLabel passwordLabel = new JLabel("Password");
-		passwordLabel.setBounds(250, 180, 80, 25);
+		passwordLabel.setBounds(370, 290, 120, 25);
+		passwordLabel.setFont(new Font("Time New Roman", Font.ITALIC, 18));
 		panel.add(passwordLabel);
 
 		final JPasswordField passwordText = new JPasswordField(20);
-		passwordText.setBounds(350, 180, 160, 25);
+		passwordText.setBounds(500, 290, 160, 25);
 		panel.add(passwordText);
 
-		JLabel RepasswordLabel = new JLabel("RePassword");
-		RepasswordLabel.setBounds(250, 220, 80, 25);
+		JLabel RepasswordLabel = new JLabel("Re Password");
+		RepasswordLabel.setBounds(370, 330, 120, 25);
+		RepasswordLabel.setFont(new Font("Time New Roman", Font.ITALIC, 18));
 		panel.add(RepasswordLabel);
 
 		final JPasswordField RepasswordText = new JPasswordField(20);
-		RepasswordText.setBounds(350, 220, 160, 25);
+		RepasswordText.setBounds(500, 330, 160, 25);
 		panel.add(RepasswordText);
 
-		JButton addDevice = new JButton("Add device");
-		addDevice.setBounds(350, 260, 160, 25);
+		JButton addDevice = new JButton("Register Device");
+		addDevice.setBounds(500, 375, 160, 25);
 		panel.add(addDevice);
+		
 		addDevice.addActionListener(new ActionListener() {
 
 			@Override
@@ -304,7 +339,7 @@ public class AddDevice extends JFrame {
 
 								if (response.equals("true")) {
 									try {
-										markDeviceAsAdded();
+										SuperUtil.markDeviceAsAdded();
 									} catch (IOException e1) {
 										e1.printStackTrace();
 									}
@@ -315,24 +350,24 @@ public class AddDevice extends JFrame {
 										e1.printStackTrace();
 									}
 								} else if (response.equals("null")) {
-									errorMsg("Please check internet connection.");
+									SuperUtil.errorMsg("Please check internet connection.");
 								} else if (response.equals("error_MacAddressNotNniqe")) {
-									errorMsg("This device is already added by another user.");
+									SuperUtil.errorMsg("This device is already added by another user.");
 								} else if (response.equals("false")) {
-									errorMsg("There is an error please try again.");
+									SuperUtil.errorMsg("There is an error please try again.");
 								}
 
 							} else {
-								errorMsg("password and re-password are not equal");
+								SuperUtil.errorMsg("password and re-password are not equal");
 							}
 						} else {
-							errorMsg("you should Re-Enter RePassword");
+							SuperUtil.errorMsg("you should Re-Enter RePassword");
 						}
 					} else {
-						errorMsg("you should Enter Password");
+						SuperUtil.errorMsg("you should Enter Password");
 					}
 				} else {
-					errorMsg("you should Enter Devcie Name");
+					SuperUtil.errorMsg("you should Enter Devcie Name");
 				}
 
 			}
@@ -340,48 +375,25 @@ public class AddDevice extends JFrame {
 
 	}
 
-	public static void errorMsg(String message) {
-		JOptionPane.showMessageDialog(new JFrame(), message, "Dialog", JOptionPane.ERROR_MESSAGE);
-	}
-
-	public static String getMacAddress() {
-		InetAddress ip = null;
-		StringBuilder sb = new StringBuilder();
-		try {
-			ip = InetAddress.getLocalHost();
-			NetworkInterface network = NetworkInterface.getByInetAddress(ip);
-			// System.out.println(network.getHardwareAddress().toString());
-			byte[] mac = network.getHardwareAddress();
-			for (int i = 0; i < mac.length; i++)
-				sb.append(String.format("%02X%s", mac[i], (i < mac.length - 1) ? "-" : ""));
-
-		} catch (UnknownHostException | SocketException e) {
-			e.printStackTrace();
-		}
-		return sb.toString();
-	}
-
 	public static String registerUserDevice(String deviceName, String devicePassword)
 			throws JSONException, IOException {
 
 		String os = System.getProperty("os.name").toLowerCase().contains("windows") ? "WINDOWS" : "LINUX";
 		int userID = CommonUtil.getUserID();
-		System.out.println(getMacAddress());
-		String deviceID = getMacAddress();
+		String deviceID = SuperUtil.getMacAddress();
 
+		deviceName = deviceName.replace(" ", "%20");
 		String url = "http://" + hostname + ":8080/fmd/webService/device/register/" + deviceName + "/" + devicePassword
 				+ "/" + deviceID + "/" + os + "/" + userID;
 
 		String response = WebServiceConnector.getResponeString(url);
-
-		if (response == null) {
+		if (response == null)
 			return "null";
-		}
 
 		JSONObject obj = new JSONObject(response);
 
 		if (obj.getString("status").equals("Success")) {
-			saveDeviceID(obj.getInt("id"));
+			SuperUtil.saveDeviceID(obj.getInt("id"));
 			return "true";
 		} else if (obj.getString("status").contains("MacAddressNotNniqe")) {
 			return "error_MacAddressNotNniqe";
@@ -389,37 +401,4 @@ public class AddDevice extends JFrame {
 		return "false";
 	}
 
-	public static void saveDeviceID(int deviceID) throws IOException {
-		File addDeviceFile = new File(Constants.FILE_PATH);
-		BufferedReader brTest = new BufferedReader(new FileReader(addDeviceFile));
-		String[] arr = brTest.readLine().split(" , ");
-
-		try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(Constants.FILE_PATH, false)))) {
-			out.println(arr[0] + " , " + arr[1] + " , " + deviceID);
-		} catch (IOException e) {
-		}
-	}
-
-	public static void markDeviceAsAdded() throws IOException {
-		File addDeviceFile = new File(Constants.FILE_PATH);
-		BufferedReader brTest = new BufferedReader(new FileReader(addDeviceFile));
-		String[] arr = brTest.readLine().split(" , ");
-
-		try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(Constants.FILE_PATH, false)))) {
-			out.println(1 + " , " + arr[1] + " , " + arr[2]);
-		} catch (IOException e) {
-		}
-	}
-
-	public static void logout() throws IOException {
-		File addDeviceFile = new File(Constants.FILE_PATH);
-		BufferedReader brTest = new BufferedReader(new FileReader(addDeviceFile));
-		String[] arr = brTest.readLine().split(" , ");
-
-		try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(Constants.FILE_PATH, false)))) {
-			out.println(arr[0] + " , " + 0 + " , " + arr[2]);
-		} catch (IOException e) {
-		}
-
-	}
 }

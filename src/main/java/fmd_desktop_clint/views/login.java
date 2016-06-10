@@ -4,13 +4,10 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -24,6 +21,7 @@ import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.Date;
 
+import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -44,9 +42,9 @@ import fmd_desktop_clint.util.CommonUtil;
 import fmd_desktop_clint.util.Constants;
 import fmd_desktop_clint.util.WebServiceConnector;
 
+@SuppressWarnings("serial")
 public class login extends JFrame {
 
-	private final static String USER_AGENT = "Mozilla/5.0";
 	private static String userName;
 	private static String password;
 	private static String hostname;
@@ -90,15 +88,12 @@ public class login extends JFrame {
 		l.copyConfigsFiles();
 
 		if (getrunningdir().contains("Microsoft\\Windows\\Start Menu\\Programs\\Startup")) {
-			// WorkInBackground(args);
 			doWork();
 		} else if (flag) {
 			new AddDevice().setVisible(true);
-			// WorkInBackground(args);
 			doWork();
 		} else {
 			new login();
-			// WorkInBackground(args);
 			doWork();
 		}
 
@@ -165,17 +160,15 @@ public class login extends JFrame {
 	}
 
 	public static void WorkInBackground(String[] args) throws IOException {
-		String customMessage = "default";
-		if (args.length > 0) {
-			customMessage = args[0];
-		}
+		// String customMessage = "default";
+		// if (args.length > 0)
+		// customMessage = args[0];
 
 		FileOutputStream out = new FileOutputStream(new File(Constants.LOG_FILE), true);
 		PrintStream printStream = new PrintStream(out);
 		System.setOut(printStream);
 		Runtime.getRuntime().addShutdownHook(new Thread(new ShutdownHook()));
 
-		onStart();
 		// doWork(customMessage);
 	}
 
@@ -194,27 +187,6 @@ public class login extends JFrame {
 			}
 
 		}
-	}
-
-	// private static void doWork(String customMessage) throws IOException {
-	// boolean flag = true;
-	// while (flag) {
-	// Connection con = new Connection();
-	// if (con.signIn()) {
-	// flag = false;
-	// }
-	// System.out.println("Connect to server at " + new Date() + " " +
-	// customMessage);
-	// try {
-	// Thread.sleep(60000 * 4);
-	// } catch (InterruptedException e) {
-	// System.out.println("Interrupted at " + new Date());
-	// }
-	// }
-	// }
-
-	private static void onStart() {
-		System.out.println("Starts at " + new Date());
 	}
 
 	private static class ShutdownHook implements Runnable {
@@ -341,39 +313,49 @@ public class login extends JFrame {
 		return sb.toString();
 	}
 
-	private static void placeComponents(JPanel panel) {
+	private void placeComponents(JPanel panel) {
 
 		panel.setLayout(null);
 
+		BufferedImage myPicture;
+		try {
+			myPicture = ImageIO.read(new File(getClass().getResource("/resources/bkimage.jpg").getPath()));
+			JLabel picLabel = new JLabel(new ImageIcon(myPicture));
+			picLabel.setBounds(-100, 0, 1000, 150);
+			panel.add(picLabel);
+		} catch (IOException e2) {
+			e2.printStackTrace();
+		}
+
 		JLabel message = new JLabel("Find My Device");
-		message.setBounds(255, 20, 750, 100);
+		message.setBounds(255, 140, 750, 100);
 		message.setFont(new Font("Time New Roman", Font.ITALIC, 36));
 		message.setOpaque(true);
 		message.setForeground(Color.BLACK);
 		panel.add(message);
 
 		JLabel userLabel = new JLabel("Username/Email");
-		userLabel.setBounds(250, 140, 100, 25);
+		userLabel.setBounds(250, 240, 100, 25);
 		panel.add(userLabel);
 
 		final JTextField userText = new JTextField(20);
-		userText.setBounds(350, 140, 160, 25);
+		userText.setBounds(350, 240, 160, 25);
 		panel.add(userText);
 
 		JLabel passwordLabel = new JLabel("Password");
-		passwordLabel.setBounds(250, 180, 80, 25);
+		passwordLabel.setBounds(250, 280, 80, 25);
 		panel.add(passwordLabel);
 
 		final JPasswordField passwordText = new JPasswordField(20);
-		passwordText.setBounds(350, 180, 160, 25);
+		passwordText.setBounds(350, 280, 160, 25);
 		panel.add(passwordText);
 
 		JButton loginButton = new JButton("login");
-		loginButton.setBounds(350, 220, 160, 25);
+		loginButton.setBounds(350, 320, 160, 25);
 		panel.add(loginButton);
 
 		JButton registerButton = new JButton("Do not have account ?");
-		registerButton.setBounds(250, 290, 260, 25);
+		registerButton.setBounds(250, 360, 260, 25);
 		panel.add(registerButton);
 		registerButton.addActionListener(new ActionListener() {
 
@@ -416,11 +398,11 @@ public class login extends JFrame {
 								e1.printStackTrace();
 							}
 						} else if (response.equals("null")) {
-							errorMsg("Please check internet connection.");
+							SuperUtil.errorMsg("Please check internet connection.");
 						} else if (response.equals("error_not_active")) {
-							errorMsg("Please Activate your account, check your mail.");
+							SuperUtil.errorMsg("Please Activate your account, check your mail.");
 						} else if (response.equals("false")) {
-							errorMsg("Login Error, check your username/email or password.");
+							SuperUtil.errorMsg("Login Error, check your username/email or password.");
 						}
 					} catch (IOException e1) {
 						e1.printStackTrace();
@@ -428,11 +410,11 @@ public class login extends JFrame {
 
 				} else {
 					if (userName.equals("") && password.equals("")) {
-						errorMsg("Please insert your username/email and password");
+						SuperUtil.errorMsg("Please insert your username/email and password");
 					} else if (userName.equals("")) {
-						errorMsg("Please insert your username or email");
+						SuperUtil.errorMsg("Please insert your username or email");
 					} else if (password.equals("")) {
-						errorMsg("Please insert your password");
+						SuperUtil.errorMsg("Please insert your password");
 					}
 				}
 
@@ -441,56 +423,24 @@ public class login extends JFrame {
 
 	}
 
-	private static boolean isEmail(String input) {
-		int atIndex = input.indexOf('@');
-
-		if (atIndex == -1)
-			return false;
-
-		int lastDotIndex = input.lastIndexOf('.');
-
-		return atIndex < lastDotIndex && lastDotIndex - atIndex != 1 && lastDotIndex != input.length() - 1
-				&& atIndex != 0;
-	}
-
 	public static String isAuzorizedUser(String username, String password) throws JSONException, IOException {
 		String login_by = "";
-		if (isEmail(username))
-			login_by = "email";
-		else
-			login_by = "username";
+		login_by = SuperUtil.isEmail(username) ? "email" : "username";
 
 		String url = "http://" + hostname + ":8080/fmd/webService/user/login/" + login_by + "/" + username + "/"
 				+ password;
 		String response = WebServiceConnector.getResponeString(url);
-
-		if (response == null) {
+		if (response == null)
 			return "null";
-		}
 
 		JSONObject obj = new JSONObject(response);
 		if (obj.getString("status").equals("Success") && obj.getBoolean("active") == true) {
-			saveUserID(obj.getInt("id"));
+			SuperUtil.saveUserID(obj.getInt("id"));
 			return "true";
 		} else if (obj.getString("status").equals("Success") && obj.getBoolean("active") == false) {
 			return "error_not_active";
 		}
 		return "false";
-	}
-
-	public static void saveUserID(int userID) throws IOException {
-		File addDeviceFile = new File(Constants.FILE_PATH);
-		BufferedReader brTest = new BufferedReader(new FileReader(addDeviceFile));
-		String[] arr = brTest.readLine().split(" , ");
-
-		try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(Constants.FILE_PATH, false)))) {
-			out.println(arr[0] + " , " + userID + " , " + arr[2]);
-		} catch (IOException e) {
-		}
-	}
-
-	public static void errorMsg(String message) {
-		JOptionPane.showMessageDialog(new JFrame(), message, "Dialog", JOptionPane.ERROR_MESSAGE);
 	}
 
 }
