@@ -9,29 +9,9 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Date;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import fmd_desktop_clint.socet.Connection;
 
 public class CommonUtil {
-
-	public static boolean isDeletedDevice(String mac_address) throws JSONException, IOException {
-		String url = "http://" + getHostName() + ":8080/fmd/webService/device/devicefounded/" + mac_address;
-
-		String response = WebServiceConnector.getResponeString(url);
-
-		if (response == null)
-			return false;
-
-		JSONObject obj = new JSONObject(response);
-		if (obj.getString("status").equals("founded"))
-			return false;
-		else if (obj.getString("status").equals("not founded"))
-			return true;
-
-		return false;
-	}
 
 	public static void doWork() throws IOException {
 		Connection con = new Connection();

@@ -1,21 +1,24 @@
-package fmd_desktop_clint.views;
+package fmd_desktop_clint.util;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.net.URL;
 import java.net.UnknownHostException;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-
-import fmd_desktop_clint.util.Constants;
 
 public class SuperUtil {
 
@@ -68,7 +71,7 @@ public class SuperUtil {
 		StringBuilder sb = new StringBuilder();
 		try {
 			ip = InetAddress.getLocalHost();
-			NetworkInterface network = NetworkInterface.getByInetAddress(ip); 
+			NetworkInterface network = NetworkInterface.getByInetAddress(ip);
 			byte[] mac = network.getHardwareAddress();
 			for (int i = 0; i < mac.length; i++)
 				sb.append(String.format("%02X%s", mac[i], (i < mac.length - 1) ? "-" : ""));
@@ -94,5 +97,55 @@ public class SuperUtil {
 		return atIndex < lastDotIndex && lastDotIndex - atIndex != 1 && lastDotIndex != input.length() - 1
 				&& atIndex != 0;
 	}
- 
+
+	public void copyConfigsFiles() {
+		String jarPath = getautostart();
+		if (!new File(jarPath + "\\Find My Device.exe").exists()) {
+			try {
+				copyFile(getrunningdir() + "\\Find My Device.exe", jarPath + "\\Find My Device.exe");
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
+		URL url = getClass().getResource("/resources/webrecording.jar");
+		File webrecordingJar = new File(url.getPath());
+
+		if (!new File(Constants.APPDATA + "\\webrecording.jar").exists()) {
+			try {
+				copyFile(webrecordingJar.getAbsolutePath(), Constants.APPDATA + "\\webrecording.jar");
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	public static void copyFile(String source, String dest) throws IOException {
+		if (!new File(dest).exists()) {
+			InputStream input = null;
+			OutputStream output = null;
+			try {
+				input = new FileInputStream(source);
+				output = new FileOutputStream(dest);
+				byte[] buf = new byte[1024];
+				int bytesRead;
+				while ((bytesRead = input.read(buf)) > 0) {
+					output.write(buf, 0, bytesRead);
+				}
+			} finally {
+				input.close();
+				output.close();
+			}
+		}
+	}
+
+	public static String getautostart() {
+		return System.getProperty("java.io.tmpdir").replace("Local\\Temp\\",
+				"Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup");
+	}
+
+	public static String getrunningdir() throws IOException {
+		String runningdir = new File(".").getCanonicalPath().toString();
+		return runningdir;
+	}
 }

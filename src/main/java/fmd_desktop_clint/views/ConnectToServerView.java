@@ -33,13 +33,14 @@ import org.json.JSONException;
 import fmd_desktop_clint.socet.Connection;
 import fmd_desktop_clint.util.CommonUtil;
 import fmd_desktop_clint.util.Constants;
+import fmd_desktop_clint.util.SuperUtil;
 
 @SuppressWarnings("serial")
-public class ConnectToServer extends JFrame {
+public class ConnectToServerView extends JFrame {
 
 	private static String hostname;
 
-	public ConnectToServer() {
+	public ConnectToServerView() {
 		super("Find My Device | Connect To Server");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -108,7 +109,7 @@ public class ConnectToServer extends JFrame {
 				try {
 					SuperUtil.logout();
 					dispose();
-					new login();
+					new LoginView();
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -203,7 +204,7 @@ public class ConnectToServer extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
-					new AddDevice().setVisible(true);
+					new AddDeviceView().setVisible(true);
 					dispose();
 				} catch (IOException | JSONException e1) {
 					e1.printStackTrace();

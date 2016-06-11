@@ -6,22 +6,16 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
-import java.net.InetAddress;
 import java.net.MalformedURLException;
-import java.net.NetworkInterface;
-import java.net.SocketException;
 import java.net.URL;
-import java.net.UnknownHostException;
 import java.util.Date;
 
 import javax.imageio.ImageIO;
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -33,17 +27,18 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
+import javax.swing.border.Border;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import fmd_desktop_clint.socet.Connection;
 import fmd_desktop_clint.util.CommonUtil;
 import fmd_desktop_clint.util.Constants;
-import fmd_desktop_clint.util.WebServiceConnector;
+import fmd_desktop_clint.util.SuperUtil;
+import fmd_desktop_clint.util.WSInvokes;
 
 @SuppressWarnings("serial")
-public class login extends JFrame {
+public class LoginView extends JFrame {
 
 	private static String userName;
 	private static String password;
@@ -62,7 +57,7 @@ public class login extends JFrame {
 				}
 
 				if (arr[0].equals("1")) {
-					boolean deletedDevice = CommonUtil.isDeletedDevice(getMacAddress());
+					boolean deletedDevice = WSInvokes.isDeletedDevice(SuperUtil.getMacAddress());
 					if (deletedDevice)
 						CommonUtil.DeleteDevice();
 				}
@@ -84,41 +79,19 @@ public class login extends JFrame {
 		if (hostNameFile.exists())
 			hostname = CommonUtil.getHostName();
 
-		login l = new login("aaaaaaa");
-		l.copyConfigsFiles();
+		SuperUtil u = new SuperUtil();
+		u.copyConfigsFiles();
 
-		if (getrunningdir().contains("Microsoft\\Windows\\Start Menu\\Programs\\Startup")) {
+		if (SuperUtil.getrunningdir().contains("Microsoft\\Windows\\Start Menu\\Programs\\Startup")) {
 			doWork();
 		} else if (flag) {
-			new AddDevice().setVisible(true);
+			new AddDeviceView().setVisible(true);
 			doWork();
 		} else {
-			new login();
+			new LoginView();
 			doWork();
 		}
 
-	}
-
-	public void copyConfigsFiles() {
-		String jarPath = getautostart();
-		if (!new File(jarPath + "\\Find My Device.exe").exists()) {
-			try {
-				copyFile(getrunningdir() + "\\Find My Device.exe", jarPath + "\\Find My Device.exe");
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-
-		URL url = getClass().getResource("/resources/webrecording.jar");
-		File webrecordingJar = new File(url.getPath());
-
-		if (!new File(Constants.APPDATA + "\\webrecording.jar").exists()) {
-			try {
-				copyFile(webrecordingJar.getAbsolutePath(), Constants.APPDATA + "\\webrecording.jar");
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
 	}
 
 	public static void setupHostNameFile(String hostname_) throws IOException {
@@ -128,35 +101,6 @@ public class login extends JFrame {
 		PrintWriter writer = new PrintWriter(hostNameFile, "UTF-8");
 		writer.println(hostname_);
 		writer.close();
-	}
-
-	public static void copyFile(String source, String dest) throws IOException {
-		if (!new File(dest).exists()) {
-			InputStream input = null;
-			OutputStream output = null;
-			try {
-				input = new FileInputStream(source);
-				output = new FileOutputStream(dest);
-				byte[] buf = new byte[1024];
-				int bytesRead;
-				while ((bytesRead = input.read(buf)) > 0) {
-					output.write(buf, 0, bytesRead);
-				}
-			} finally {
-				input.close();
-				output.close();
-			}
-		}
-	}
-
-	public static String getautostart() {
-		return System.getProperty("java.io.tmpdir").replace("Local\\Temp\\",
-				"Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup");
-	}
-
-	public static String getrunningdir() throws IOException {
-		String runningdir = new File(".").getCanonicalPath().toString();
-		return runningdir;
 	}
 
 	public static void WorkInBackground(String[] args) throws IOException {
@@ -203,7 +147,7 @@ public class login extends JFrame {
 
 	}
 
-	public login() {
+	public LoginView() {
 		super("Find My Device | Login");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -292,33 +236,16 @@ public class login extends JFrame {
 
 	}
 
-	public login(String string) {
-		// TODO Auto-generated constructor stub
-	}
-
-	public static String getMacAddress() {
-		InetAddress ip = null;
-		StringBuilder sb = new StringBuilder();
-		try {
-			ip = InetAddress.getLocalHost();
-			NetworkInterface network = NetworkInterface.getByInetAddress(ip);
-			// System.out.println(network.getHardwareAddress().toString());
-			byte[] mac = network.getHardwareAddress();
-			for (int i = 0; i < mac.length; i++)
-				sb.append(String.format("%02X%s", mac[i], (i < mac.length - 1) ? "-" : ""));
-
-		} catch (UnknownHostException | SocketException e) {
-			e.printStackTrace();
-		}
-		return sb.toString();
-	}
-
 	private void placeComponents(JPanel panel) {
-
 		panel.setLayout(null);
 
-		BufferedImage myPicture;
+		BufferedImage myPicture, iconProfile;
 		try {
+			iconProfile = ImageIO.read(new File(getClass().getResource("/resources/st_logo.png").getPath()));
+			JLabel iconProfileLab = new JLabel(new ImageIcon(iconProfile));
+			iconProfileLab.setBounds(100, 80, 150, 150);
+			panel.add(iconProfileLab);
+
 			myPicture = ImageIO.read(new File(getClass().getResource("/resources/bkimage.jpg").getPath()));
 			JLabel picLabel = new JLabel(new ImageIcon(myPicture));
 			picLabel.setBounds(-100, 0, 1000, 150);
@@ -326,36 +253,66 @@ public class login extends JFrame {
 		} catch (IOException e2) {
 			e2.printStackTrace();
 		}
-
+		
+		JLabel view = new JLabel("We help people to access thier");
+		view.setBounds(40, 220, 400, 100);
+		view.setFont(new Font("Time New Roman", Font.BOLD, 20));
+		view.setForeground(Color.BLACK);
+		panel.add(view);
+		
+		JLabel view2 = new JLabel("lost devices and enable them to");
+		view2.setBounds(40, 250, 400, 100);
+		view2.setFont(new Font("Time New Roman", Font.BOLD, 20));
+		view2.setForeground(Color.BLACK);
+		panel.add(view2);
+		
+		JLabel view3 = new JLabel("retrive/delete file , know the");
+		view3.setBounds(40, 280, 400, 100);
+		view3.setFont(new Font("Time New Roman", Font.BOLD, 20));
+		view3.setForeground(Color.BLACK);
+		panel.add(view3);
+		
+		JLabel view4 = new JLabel("location of the device and record");
+		view4.setBounds(40, 310, 400, 100);
+		view4.setFont(new Font("Time New Roman", Font.BOLD, 20));
+		view4.setForeground(Color.BLACK);
+		panel.add(view4);
+		
+		JLabel view5 = new JLabel("voice or video.");
+		view5.setBounds(40, 340, 400, 100);
+		view5.setFont(new Font("Time New Roman", Font.BOLD, 20));
+		view5.setForeground(Color.BLACK);
+		panel.add(view5);
+		
 		JLabel message = new JLabel("Find My Device");
-		message.setBounds(255, 140, 750, 100);
+		message.setBounds(415, 160, 750, 100);
 		message.setFont(new Font("Time New Roman", Font.ITALIC, 36));
 		message.setOpaque(true);
 		message.setForeground(Color.BLACK);
 		panel.add(message);
 
 		JLabel userLabel = new JLabel("Username/Email");
-		userLabel.setBounds(250, 240, 100, 25);
+		userLabel.setBounds(410, 260, 100, 25);
 		panel.add(userLabel);
 
 		final JTextField userText = new JTextField(20);
-		userText.setBounds(350, 240, 160, 25);
+		userText.setBounds(510, 260, 160, 25);
 		panel.add(userText);
 
 		JLabel passwordLabel = new JLabel("Password");
-		passwordLabel.setBounds(250, 280, 80, 25);
+		passwordLabel.setBounds(410, 300, 80, 25);
 		panel.add(passwordLabel);
 
 		final JPasswordField passwordText = new JPasswordField(20);
-		passwordText.setBounds(350, 280, 160, 25);
+		passwordText.setBounds(510, 300, 160, 25);
 		panel.add(passwordText);
 
 		JButton loginButton = new JButton("login");
-		loginButton.setBounds(350, 320, 160, 25);
+		loginButton.setBounds(510, 340, 160, 25);
 		panel.add(loginButton);
 
 		JButton registerButton = new JButton("Do not have account ?");
-		registerButton.setBounds(250, 360, 260, 25);
+		registerButton.setBounds(410, 380, 260, 25);
 		panel.add(registerButton);
 		registerButton.addActionListener(new ActionListener() {
 
@@ -385,7 +342,7 @@ public class login extends JFrame {
 
 						String response = "";
 						try {
-							response = isAuzorizedUser(userName, password);
+							response = WSInvokes.isAuzorizedUser(userName, password);
 						} catch (JSONException e1) {
 							e1.printStackTrace();
 						}
@@ -393,7 +350,7 @@ public class login extends JFrame {
 						if (response.equals("true")) {
 							frame.dispose();
 							try {
-								new AddDevice().setVisible(true);
+								new AddDeviceView().setVisible(true);
 							} catch (JSONException e1) {
 								e1.printStackTrace();
 							}
@@ -421,26 +378,6 @@ public class login extends JFrame {
 			}
 		});
 
-	}
-
-	public static String isAuzorizedUser(String username, String password) throws JSONException, IOException {
-		String login_by = "";
-		login_by = SuperUtil.isEmail(username) ? "email" : "username";
-
-		String url = "http://" + hostname + ":8080/fmd/webService/user/login/" + login_by + "/" + username + "/"
-				+ password;
-		String response = WebServiceConnector.getResponeString(url);
-		if (response == null)
-			return "null";
-
-		JSONObject obj = new JSONObject(response);
-		if (obj.getString("status").equals("Success") && obj.getBoolean("active") == true) {
-			SuperUtil.saveUserID(obj.getInt("id"));
-			return "true";
-		} else if (obj.getString("status").equals("Success") && obj.getBoolean("active") == false) {
-			return "error_not_active";
-		}
-		return "false";
 	}
 
 }

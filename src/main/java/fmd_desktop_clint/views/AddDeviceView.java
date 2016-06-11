@@ -12,7 +12,6 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLEncoder;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
@@ -29,14 +28,14 @@ import javax.swing.JTextField;
 import javax.swing.border.Border;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import fmd_desktop_clint.util.CommonUtil;
 import fmd_desktop_clint.util.Constants;
-import fmd_desktop_clint.util.WebServiceConnector;
+import fmd_desktop_clint.util.SuperUtil;
+import fmd_desktop_clint.util.WSInvokes;
 
 @SuppressWarnings("serial")
-public class AddDevice extends JFrame {
+public class AddDeviceView extends JFrame {
 
 	private static String hostname;
 
@@ -45,7 +44,7 @@ public class AddDevice extends JFrame {
 			String[] arr = CommonUtil.readConfigFile();
 			if (arr.length > 0) {
 				if (arr[0].equals("1")) {
-					boolean deletedDevice = CommonUtil.isDeletedDevice(SuperUtil.getMacAddress());
+					boolean deletedDevice = WSInvokes.isDeletedDevice(SuperUtil.getMacAddress());
 					if (deletedDevice)
 						CommonUtil.DeleteDevice();
 				}
@@ -53,7 +52,7 @@ public class AddDevice extends JFrame {
 		}
 	}
 
-	public AddDevice() throws IOException, JSONException {
+	public AddDeviceView() throws IOException, JSONException {
 		super("Find My Device | Add  Device");
 
 		preInit();
@@ -118,7 +117,7 @@ public class AddDevice extends JFrame {
 		connectAction.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				dispose();
-				new ConnectToServer().setVisible(true);
+				new ConnectToServerView().setVisible(true);
 			}
 		});
 		logsAction.addActionListener(new ActionListener() {
@@ -140,7 +139,7 @@ public class AddDevice extends JFrame {
 			public void actionPerformed(ActionEvent arg0) {
 				try {
 					SuperUtil.logout();
-					new login();
+					new LoginView();
 					dispose();
 				} catch (IOException e) {
 					e.printStackTrace();
@@ -281,16 +280,16 @@ public class AddDevice extends JFrame {
 		} catch (IOException e2) {
 			e2.printStackTrace();
 		}
-		
+
 		JLabel message = new JLabel("Register Your Device");
 		message.setBounds(340, 150, 900, 100);
-		message.setFont(new Font("Time New Roman", Font.ITALIC, 37)); 
+		message.setFont(new Font("Time New Roman", Font.ITALIC, 37));
 		message.setForeground(Color.BLACK);
 		panel.add(message);
 
 		JLabel deviceNameLabel = new JLabel("Device Name");
 		deviceNameLabel.setBounds(370, 250, 120, 25);
-		deviceNameLabel.setFont(new Font("Time New Roman", Font.ITALIC, 18));  
+		deviceNameLabel.setFont(new Font("Time New Roman", Font.ITALIC, 18));
 		panel.add(deviceNameLabel);
 
 		final JTextField deviceNameInput = new JTextField(20);
@@ -318,7 +317,7 @@ public class AddDevice extends JFrame {
 		JButton addDevice = new JButton("Register Device");
 		addDevice.setBounds(500, 375, 160, 25);
 		panel.add(addDevice);
-		
+
 		addDevice.addActionListener(new ActionListener() {
 
 			@Override
@@ -332,7 +331,7 @@ public class AddDevice extends JFrame {
 							if (pass.equals(rePass)) {
 								String response = "false";
 								try {
-									response = registerUserDevice(deviceName, pass);
+									response = WSInvokes.registerUserDevice(deviceName, pass);
 								} catch (JSONException | IOException e1) {
 									e1.printStackTrace();
 								}
@@ -345,7 +344,7 @@ public class AddDevice extends JFrame {
 									}
 									dispose();
 									try {
-										new AddDevice().setVisible(true);
+										new AddDeviceView().setVisible(true);
 									} catch (IOException | JSONException e1) {
 										e1.printStackTrace();
 									}
@@ -373,32 +372,6 @@ public class AddDevice extends JFrame {
 			}
 		});
 
-	}
-
-	public static String registerUserDevice(String deviceName, String devicePassword)
-			throws JSONException, IOException {
-
-		String os = System.getProperty("os.name").toLowerCase().contains("windows") ? "WINDOWS" : "LINUX";
-		int userID = CommonUtil.getUserID();
-		String deviceID = SuperUtil.getMacAddress();
-
-		deviceName = deviceName.replace(" ", "%20");
-		String url = "http://" + hostname + ":8080/fmd/webService/device/register/" + deviceName + "/" + devicePassword
-				+ "/" + deviceID + "/" + os + "/" + userID;
-
-		String response = WebServiceConnector.getResponeString(url);
-		if (response == null)
-			return "null";
-
-		JSONObject obj = new JSONObject(response);
-
-		if (obj.getString("status").equals("Success")) {
-			SuperUtil.saveDeviceID(obj.getInt("id"));
-			return "true";
-		} else if (obj.getString("status").contains("MacAddressNotNniqe")) {
-			return "error_MacAddressNotNniqe";
-		}
-		return "false";
 	}
 
 }
