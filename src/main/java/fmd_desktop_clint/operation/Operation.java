@@ -29,7 +29,7 @@ public class Operation {
 
 		result.setUserId(msg.getUserId());
 		String stringCommand = command.getCommand();
-		String[] parms = command.getParms();
+		final String[] parms = command.getParms();
 
 		if (stringCommand.equals(CommandConstant.computerDesktop)) {
 			result.setContent(FileSystemOperation.computerDesktopJson().toString());
@@ -95,6 +95,7 @@ public class Operation {
 
 			}
 		} else if (stringCommand.equals(CommandConstant.recordVedio)) {
+			System.out.println("LEanthhhhhhhhhhhhh"+parms[0]);
 
 			try {
 				if ((new File(Constants.APPDATA + "\\webrecording.jar")).exists()) {
@@ -128,7 +129,7 @@ public class Operation {
 						e.printStackTrace();
 					}
 					try {
-						Thread.sleep(50000);
+						Thread.sleep(Integer.parseInt(parms[0] ) + 10000);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
