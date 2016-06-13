@@ -20,6 +20,7 @@ import java.net.UnknownHostException;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
+@SuppressWarnings("resource")
 public class SuperUtil {
 
 	public static void logout() throws IOException {

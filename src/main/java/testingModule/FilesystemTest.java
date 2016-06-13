@@ -5,9 +5,6 @@ import java.io.IOException;
 import org.json.JSONException;
 
 import fmd_desktop_clint.operation.FileSystemOperation;
-import fmd_desktop_clint.socet.SocketClient;
-import fmd_desktop_clint.socet.dto.MessageDto;
-import fmd_desktop_clint.util.JsonHandler;
 
 public class FilesystemTest {
 
@@ -74,6 +71,10 @@ public class FilesystemTest {
 		System.out.println(FileSystemOperation.createNewFile("path here", "newFIleName"));
 	}
 
+	public static void main(String[] args) {
+		// to do test
+	}
+
 	/*
 	 * 
 	 * try { SocketClient client = new SocketClient("192.168.43.154");
@@ -88,5 +89,5 @@ public class FilesystemTest {
 	 * (Exception ex) { ex.printStackTrace(); }
 	 * 
 	 */
-	 
+
 }
