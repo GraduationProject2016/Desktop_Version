@@ -44,7 +44,7 @@ public class AddDeviceView extends JFrame {
 			String[] arr = CommonUtil.readConfigFile();
 			if (arr.length > 0) {
 				if (arr[0].equals("1")) {
-					boolean deletedDevice = WSInvokes.isDeletedDevice(SuperUtil.getMacAddress());
+					boolean deletedDevice = WSInvokes.isDeletedDevice(SuperUtil.getMacAddress()); 
 					if (deletedDevice)
 						CommonUtil.DeleteDevice();
 				}

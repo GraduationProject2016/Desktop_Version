@@ -15,7 +15,6 @@ import java.net.URL;
 import java.util.Date;
 
 import javax.imageio.ImageIO;
-import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -27,7 +26,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
-import javax.swing.border.Border;
 
 import org.json.JSONException;
 
@@ -139,8 +137,7 @@ public class LoginView extends JFrame {
 			onStop();
 		}
 
-		private void onStop() {
-			// System.out.println("Ends at " + new Date());
+		private void onStop() { 
 			System.out.flush();
 			System.out.close();
 		}
