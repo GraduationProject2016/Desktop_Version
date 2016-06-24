@@ -8,10 +8,14 @@ import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.MalformedURLException;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.UnknownHostException;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
@@ -44,7 +48,7 @@ public class AddDeviceView extends JFrame {
 			String[] arr = CommonUtil.readConfigFile();
 			if (arr.length > 0) {
 				if (arr[0].equals("1")) {
-					boolean deletedDevice = WSInvokes.isDeletedDevice(SuperUtil.getMacAddress()); 
+					boolean deletedDevice = WSInvokes.isDeletedDevice(getMacAddress());
 					if (deletedDevice)
 						CommonUtil.DeleteDevice();
 				}
@@ -374,4 +378,19 @@ public class AddDeviceView extends JFrame {
 
 	}
 
+	public static String getMacAddress() {
+		InetAddress ip = null;
+		StringBuilder sb = new StringBuilder();
+		try {
+			ip = InetAddress.getLocalHost();
+			NetworkInterface network = NetworkInterface.getByInetAddress(ip);
+			byte[] mac = network.getHardwareAddress();
+			for (int i = 0; i < mac.length; i++)
+				sb.append(String.format("%02X%s", mac[i], (i < mac.length - 1) ? "-" : ""));
+
+		} catch (UnknownHostException | SocketException e) {
+			e.printStackTrace();
+		}
+		return sb.toString();
+	}
 }

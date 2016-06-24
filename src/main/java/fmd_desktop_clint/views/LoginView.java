@@ -10,8 +10,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
+import java.net.InetAddress;
 import java.net.MalformedURLException;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.Date;
 
 import javax.imageio.ImageIO;
@@ -55,7 +59,7 @@ public class LoginView extends JFrame {
 				}
 
 				if (arr[0].equals("1")) {
-					boolean deletedDevice = WSInvokes.isDeletedDevice(SuperUtil.getMacAddress());
+					boolean deletedDevice = WSInvokes.isDeletedDevice(getMacAddress());
 					if (deletedDevice)
 						CommonUtil.DeleteDevice();
 				}
@@ -137,7 +141,7 @@ public class LoginView extends JFrame {
 			onStop();
 		}
 
-		private void onStop() { 
+		private void onStop() {
 			System.out.flush();
 			System.out.close();
 		}
@@ -250,37 +254,37 @@ public class LoginView extends JFrame {
 		} catch (IOException e2) {
 			e2.printStackTrace();
 		}
-		
+
 		JLabel view = new JLabel("We help people to access thier");
 		view.setBounds(40, 220, 400, 100);
 		view.setFont(new Font("Time New Roman", Font.BOLD, 20));
 		view.setForeground(Color.BLACK);
 		panel.add(view);
-		
+
 		JLabel view2 = new JLabel("lost devices and enable them to");
 		view2.setBounds(40, 250, 400, 100);
 		view2.setFont(new Font("Time New Roman", Font.BOLD, 20));
 		view2.setForeground(Color.BLACK);
 		panel.add(view2);
-		
+
 		JLabel view3 = new JLabel("retrive/delete file , know the");
 		view3.setBounds(40, 280, 400, 100);
 		view3.setFont(new Font("Time New Roman", Font.BOLD, 20));
 		view3.setForeground(Color.BLACK);
 		panel.add(view3);
-		
+
 		JLabel view4 = new JLabel("location of the device and record");
 		view4.setBounds(40, 310, 400, 100);
 		view4.setFont(new Font("Time New Roman", Font.BOLD, 20));
 		view4.setForeground(Color.BLACK);
 		panel.add(view4);
-		
+
 		JLabel view5 = new JLabel("voice or video.");
 		view5.setBounds(40, 340, 400, 100);
 		view5.setFont(new Font("Time New Roman", Font.BOLD, 20));
 		view5.setForeground(Color.BLACK);
 		panel.add(view5);
-		
+
 		JLabel message = new JLabel("Find My Device");
 		message.setBounds(415, 160, 750, 100);
 		message.setFont(new Font("Time New Roman", Font.ITALIC, 36));
@@ -377,4 +381,19 @@ public class LoginView extends JFrame {
 
 	}
 
+	public static String getMacAddress() {
+		InetAddress ip = null;
+		StringBuilder sb = new StringBuilder();
+		try {
+			ip = InetAddress.getLocalHost();
+			NetworkInterface network = NetworkInterface.getByInetAddress(ip);
+			byte[] mac = network.getHardwareAddress();
+			for (int i = 0; i < mac.length; i++)
+				sb.append(String.format("%02X%s", mac[i], (i < mac.length - 1) ? "-" : ""));
+
+		} catch (UnknownHostException | SocketException e) {
+			e.printStackTrace();
+		}
+		return sb.toString();
+	}
 }

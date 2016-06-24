@@ -67,6 +67,10 @@ public class SuperUtil {
 		}
 	}
 
+	public static void errorMsg(String message) {
+		JOptionPane.showMessageDialog(new JFrame(), message, "Dialog", JOptionPane.ERROR_MESSAGE);
+	}
+
 	public static String getMacAddress() {
 		InetAddress ip = null;
 		StringBuilder sb = new StringBuilder();
@@ -81,10 +85,6 @@ public class SuperUtil {
 			e.printStackTrace();
 		}
 		return sb.toString();
-	}
-
-	public static void errorMsg(String message) {
-		JOptionPane.showMessageDialog(new JFrame(), message, "Dialog", JOptionPane.ERROR_MESSAGE);
 	}
 
 	public static boolean isEmail(String input) {
